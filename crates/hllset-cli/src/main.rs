@@ -216,7 +216,10 @@ fn run_mesh_worker(worker_id: &str) {
 
         let bus = Arc::new(InProcessBus::new(64));
         let worker = WorkerNode::new(worker_id, bus);
-        eprintln!("[mesh] Worker '{}' started on in-process bus", worker.worker_id());
+        eprintln!(
+            "[mesh] Worker '{}' started on in-process bus",
+            worker.worker_id()
+        );
         eprintln!("[mesh] Press Ctrl-C to stop");
 
         let _ = tokio::signal::ctrl_c().await;
@@ -233,7 +236,10 @@ fn run_mesh_noether(threshold: i64) {
         let bus = Arc::new(InProcessBus::new(64));
         let controller = NoetherController::new(bus, threshold);
         controller.start().await;
-        eprintln!("[mesh] Noether controller started (threshold={})", threshold);
+        eprintln!(
+            "[mesh] Noether controller started (threshold={})",
+            threshold
+        );
         eprintln!("[mesh] Press Ctrl-C to stop");
 
         let _ = tokio::signal::ctrl_c().await;
@@ -262,7 +268,9 @@ fn lua_to_json(v: LuaValue) -> serde_json::Value {
                     if let LuaValue::Integer(i) = k {
                         if i >= 1 {
                             let idx = (i - 1) as usize;
-                            if idx >= arr.len() { arr.resize(idx + 1, serde_json::Value::Null); }
+                            if idx >= arr.len() {
+                                arr.resize(idx + 1, serde_json::Value::Null);
+                            }
                             arr[idx] = lua_to_json(v);
                             continue;
                         }
@@ -277,7 +285,9 @@ fn lua_to_json(v: LuaValue) -> serde_json::Value {
                 for pair in t.pairs::<LuaValue, LuaValue>() {
                     if let Ok((k, v)) = pair {
                         let key = match k {
-                            LuaValue::String(s) => s.to_str().map(|b| b.to_string()).unwrap_or_default(),
+                            LuaValue::String(s) => {
+                                s.to_str().map(|b| b.to_string()).unwrap_or_default()
+                            }
                             LuaValue::Integer(n) => n.to_string(),
                             _ => format!("{:?}", k),
                         };

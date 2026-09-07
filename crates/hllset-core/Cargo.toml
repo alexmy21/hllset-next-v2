@@ -7,9 +7,7 @@ license.workspace = true
 description = "Core HLLSet algebra engine: HyperLogLog with set operations, BSS morphisms, content-addressing, hashing, and serialization"
 
 [dependencies]
-murmur3 = { workspace = true }
-sha1 = { workspace = true }
-hex = { workspace = true }
+hllset-contracts = { workspace = true }
 roaring = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

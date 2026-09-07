@@ -73,10 +73,7 @@ where
     I: IntoIterator<Item = &'a B>,
     B: AsRef<[u8]> + 'a,
 {
-    let mut sorted: Vec<Vec<u8>> = tokens
-        .into_iter()
-        .map(|t| t.as_ref().to_vec())
-        .collect();
+    let mut sorted: Vec<Vec<u8>> = tokens.into_iter().map(|t| t.as_ref().to_vec()).collect();
     sorted.sort();
     sorted.dedup();
 

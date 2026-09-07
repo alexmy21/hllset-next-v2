@@ -1,6 +1,6 @@
 # Fdb version 4
-["pdflatex"] 1786289124.8438 "/home/alexmy/SGS/SGS_lib/fractal_manifold/hllset-next/_DOCS/ewm/main.tex" "main.pdf" "main" 1786289125.96087 0
-  "/home/alexmy/SGS/SGS_lib/fractal_manifold/hllset-next/_DOCS/ewm/main.tex" 1786289123.06075 115853 75240d3f0f004fffb3f5fe78d40ef0ad ""
+["pdflatex"] 1787676097.52103 "/home/alexmy/SGS/SGS_lib/fractal_manifold/hllset-next/_DOCS/ewm/main.tex" "main.pdf" "main" 1787676098.67841 0
+  "/home/alexmy/SGS/SGS_lib/fractal_manifold/hllset-next/_DOCS/ewm/main.tex" 1787676095.72092 129907 b96e8a8816eb7d4afad09c2f00506c3c ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -28,8 +28,10 @@
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm" 1246382020 1004 54797486969f23fa377b128694d548df ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex8.tfm" 1246382020 988 bdf658c3bfc2d96d3c8b02cfc1c94c20 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam10.tfm" 1246382020 916 f87d7c45f9c908e672703b83b72241a3 ""
+  "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam5.tfm" 1246382020 924 9904cf1d39e9767e7a3622f2a125a565 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam7.tfm" 1246382020 928 2dc8d444221b7a635bb58038579b861a ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm" 1246382020 908 2921f8a10601f252058503cc6570e581 ""
+  "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm" 1246382020 940 75ac932a52f80982a9f8ea75d03a34cf ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm" 1246382020 940 228d6584342e91276bf566bcf9716b83 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmex10.tfm" 1136768653 992 662f679a0b3d2d53c1b94050fdaa3f50 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm" 1136768653 1528 abec98dbc43e172678c11b3b9031252a ""
@@ -53,6 +55,7 @@
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1248133631 32569 5e5ddc8df908dea60932f3c484a54c0d ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb" 1248133631 32587 1788b0c1c5b39540c96f5e42ccd6dae8 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb" 1248133631 32626 4f5c1b83753b1dd3a97d1b399a005b4b ""
+  "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb" 1248133631 34694 ad62b13721ee8eda1dcc8993c8bd7041 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbi1095.pfb" 1215737283 204454 7ec65ee6c9ea9e0534d110e799642bb0 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb" 1215737283 145408 43d44302ca7d82d487f511f83e309505 ""
   "/usr/local/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1095.pfb" 1215737283 154600 ea54091d31de803b613ba9e80ca51709 ""
@@ -129,9 +132,9 @@
   "/usr/local/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1752807475 5523661 c4134bfcd954d4921624b40c79847918 ""
   "/usr/local/texlive/2025/texmf-var/web2c/pdftex/pdflatex.fmt" 1752807524 3605127 8c66a902bcbc4c3a92ef7ade516d3868 ""
   "/usr/local/texlive/2025/texmf.cnf" 1752807468.27911 455 5b996dcaa0eb4ef14a83b026bc0a008c ""
-  "main.aux" 1786289125.81775 13871 2cf2a02536a7293cccc5ef2f5cbecd86 "pdflatex"
-  "main.out" 1786289125.81875 18295 d5dcede91603fa59401774ffcaba5f04 "pdflatex"
-  "main.tex" 1786289123.06075 115853 75240d3f0f004fffb3f5fe78d40ef0ad ""
+  "main.aux" 1787676098.53192 15409 df6d3e78908d121c6a15e227dfe0e670 "pdflatex"
+  "main.out" 1787676098.53392 19906 f4ff8d13d18f6ad87bf57aeff58a9e8a "pdflatex"
+  "main.tex" 1787676095.72092 129907 b96e8a8816eb7d4afad09c2f00506c3c ""
   (generated)
   "main.aux"
   "main.log"

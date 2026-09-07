@@ -138,8 +138,7 @@ impl BSSRouter {
 
     /// Register a node with its fingerprint.
     pub fn add_node(&mut self, id: &str, fingerprint: &NodeFingerprint) {
-        self.nodes
-            .insert(id.to_string(), fingerprint.clone());
+        self.nodes.insert(id.to_string(), fingerprint.clone());
     }
 
     /// Remove a node.

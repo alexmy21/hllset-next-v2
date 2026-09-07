@@ -45,9 +45,7 @@ impl Normalizer {
     /// should be discarded entirely.
     pub fn apply(&self, token: &[u8]) -> Option<Vec<u8>> {
         match self {
-            Normalizer::Lowercase => {
-                Some(token.iter().map(|b| b.to_ascii_lowercase()).collect())
-            }
+            Normalizer::Lowercase => Some(token.iter().map(|b| b.to_ascii_lowercase()).collect()),
             Normalizer::Trim => {
                 let start = token
                     .iter()
@@ -65,8 +63,7 @@ impl Normalizer {
                 }
             }
             Normalizer::KeepOnly(allowed) => {
-                let set: std::collections::HashSet<u8> =
-                    allowed.iter().copied().collect();
+                let set: std::collections::HashSet<u8> = allowed.iter().copied().collect();
                 let result: Vec<u8> = token.iter().copied().filter(|b| set.contains(b)).collect();
                 if result.is_empty() {
                     None
@@ -110,9 +107,8 @@ impl Tokenizer {
     /// Create a new tokenizer with sensible defaults (word pattern, unigrams).
     pub fn new() -> Self {
         // Default pattern: one or more ASCII letters or digits
-        let word_pattern = Pattern::span(
-            b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        );
+        let word_pattern =
+            Pattern::span(b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
 
         Self {
             pattern: word_pattern,
@@ -132,9 +128,8 @@ impl Tokenizer {
 
     /// Use the default word pattern (ASCII letters + digits).
     pub fn word_pattern(mut self) -> Self {
-        self.pattern = Pattern::span(
-            b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        );
+        self.pattern =
+            Pattern::span(b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         self
     }
 
@@ -289,7 +284,10 @@ mod tests {
     fn test_extract_words() {
         let tok = Tokenizer::new();
         let tokens = tok.extract(b"hello world lua");
-        let strs: Vec<&str> = tokens.iter().map(|t| std::str::from_utf8(t).unwrap()).collect();
+        let strs: Vec<&str> = tokens
+            .iter()
+            .map(|t| std::str::from_utf8(t).unwrap())
+            .collect();
         assert_eq!(strs, vec!["hello", "world", "lua"]);
     }
 
@@ -297,28 +295,33 @@ mod tests {
     fn test_lowercase() {
         let tok = Tokenizer::new().lowercase();
         let tokens = tok.tokenize(b"Hello WORLD Lua");
-        let strs: Vec<&str> = tokens.iter().map(|t| std::str::from_utf8(t).unwrap()).collect();
+        let strs: Vec<&str> = tokens
+            .iter()
+            .map(|t| std::str::from_utf8(t).unwrap())
+            .collect();
         assert_eq!(strs, vec!["hello", "world", "lua"]);
     }
 
     #[test]
     fn test_bigrams() {
-        let tok = Tokenizer::new()
-            .lowercase()
-            .ngrams(2, 2);
+        let tok = Tokenizer::new().lowercase().ngrams(2, 2);
         let tokens = tok.tokenize(b"the cat sat");
-        let strs: Vec<&str> = tokens.iter().map(|t| std::str::from_utf8(t).unwrap()).collect();
+        let strs: Vec<&str> = tokens
+            .iter()
+            .map(|t| std::str::from_utf8(t).unwrap())
+            .collect();
         // \0 = NUL separator between words in bigrams
         assert_eq!(strs, vec!["the\0cat", "cat\0sat"]);
     }
 
     #[test]
     fn test_bigrams_and_unigrams() {
-        let tok = Tokenizer::new()
-            .lowercase()
-            .ngrams(1, 2);
+        let tok = Tokenizer::new().lowercase().ngrams(1, 2);
         let tokens = tok.tokenize(b"hello world");
-        let strs: Vec<&str> = tokens.iter().map(|t| std::str::from_utf8(t).unwrap()).collect();
+        let strs: Vec<&str> = tokens
+            .iter()
+            .map(|t| std::str::from_utf8(t).unwrap())
+            .collect();
         assert_eq!(strs, vec!["hello", "world", "hello\0world"]);
     }
 
@@ -329,11 +332,11 @@ mod tests {
             .pad(b"<S>", b"</S>")
             .ngrams(2, 2);
         let tokens = tok.tokenize(b"hello world");
-        let strs: Vec<&str> = tokens.iter().map(|t| std::str::from_utf8(t).unwrap()).collect();
-        assert_eq!(
-            strs,
-            vec!["<S>\0hello", "hello\0world", "world\0</S>"]
-        );
+        let strs: Vec<&str> = tokens
+            .iter()
+            .map(|t| std::str::from_utf8(t).unwrap())
+            .collect();
+        assert_eq!(strs, vec!["<S>\0hello", "hello\0world", "world\0</S>"]);
     }
 
     #[test]
@@ -377,7 +380,10 @@ mod tests {
         let digit = Pattern::span(b"0123456789");
         let tok = Tokenizer::new().pattern(digit);
         let tokens = tok.extract(b"x=42, y=137");
-        let strs: Vec<&str> = tokens.iter().map(|t| std::str::from_utf8(t).unwrap()).collect();
+        let strs: Vec<&str> = tokens
+            .iter()
+            .map(|t| std::str::from_utf8(t).unwrap())
+            .collect();
         assert_eq!(strs, vec!["42", "137"]);
     }
 
@@ -386,11 +392,12 @@ mod tests {
         // Match either words or numbers (via alt)
         let alpha = Pattern::span(b"abcdefghijklmnopqrstuvwxyz");
         let digit = Pattern::span(b"0123456789");
-        let tok = Tokenizer::new()
-            .pattern(alpha.alt(digit))
-            .lowercase();
+        let tok = Tokenizer::new().pattern(alpha.alt(digit)).lowercase();
         let tokens = tok.tokenize(b"hello 42 world");
-        let strs: Vec<&str> = tokens.iter().map(|t| std::str::from_utf8(t).unwrap()).collect();
+        let strs: Vec<&str> = tokens
+            .iter()
+            .map(|t| std::str::from_utf8(t).unwrap())
+            .collect();
         assert_eq!(strs, vec!["hello", "42", "world"]);
     }
 
@@ -398,23 +405,25 @@ mod tests {
     fn test_trim_normalizer() {
         let tok = Tokenizer::new().trim();
         // Create a pattern that captures whitespace too
-        let any_char = Pattern::any(
-            b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ",
-        );
+        let any_char = Pattern::any(b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ");
         let tok = Tokenizer::new().pattern(any_char).trim();
         let tokens = tok.tokenize(b"  hello  world  ");
-        let strs: Vec<&str> = tokens.iter().map(|t| std::str::from_utf8(t).unwrap()).collect();
+        let strs: Vec<&str> = tokens
+            .iter()
+            .map(|t| std::str::from_utf8(t).unwrap())
+            .collect();
         // Trim should remove leading/trailing spaces on each token
         assert!(strs.iter().all(|s| !s.contains(' ')));
     }
 
     #[test]
     fn test_trigrams() {
-        let tok = Tokenizer::new()
-            .lowercase()
-            .ngrams(3, 3);
+        let tok = Tokenizer::new().lowercase().ngrams(3, 3);
         let tokens = tok.tokenize(b"the cat sat on the mat");
-        let strs: Vec<&str> = tokens.iter().map(|t| std::str::from_utf8(t).unwrap()).collect();
+        let strs: Vec<&str> = tokens
+            .iter()
+            .map(|t| std::str::from_utf8(t).unwrap())
+            .collect();
         assert!(strs.len() > 0);
         assert_eq!(strs[0], "the\0cat\0sat");
     }

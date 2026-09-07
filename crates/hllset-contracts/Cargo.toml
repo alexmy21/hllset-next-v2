@@ -1,0 +1,17 @@
+[package]
+name = "hllset-contracts"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Soldered HLLSet/EWM invariants and wire vocabulary shared by all projects (GOVERNANCE.md §3)"
+
+[features]
+default = []
+serde = ["dep:serde"]
+
+[dependencies]
+hex = { workspace = true }
+murmur3 = { workspace = true }
+serde = { workspace = true, optional = true }
+sha1 = { workspace = true }

@@ -11,23 +11,23 @@
 //! Level 1: token rank      F(TF)
 //! ```
 
-pub mod token;
 pub mod bit;
-pub mod register;
-pub mod hllset;
 pub mod compound;
 pub mod derivatives;
 pub mod fisher;
+pub mod hllset;
 pub mod mask;
+pub mod register;
+pub mod token;
 
-pub use token::{TokenRank, TokenRankFn};
 pub use bit::{BitRank, BitRankAggregator};
-pub use register::{RegisterRank, RegisterRankAggregator};
-pub use hllset::{HLLSetRank, HLLSetRankFn};
 pub use compound::CompoundRank;
-pub use derivatives::{RankDerivatives, NoetherSteering};
+pub use derivatives::{NoetherSteering, RankDerivatives};
 pub use fisher::{FisherMatrix, FisherProjection};
+pub use hllset::{HLLSetRank, HLLSetRankFn};
 pub use mask::{ObservableMask, SubLatticeDegree};
+pub use register::{RegisterRank, RegisterRankAggregator};
+pub use token::{TokenRank, TokenRankFn};
 
 /// The universal rank type — all levels produce `u64`.
 ///

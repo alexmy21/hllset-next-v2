@@ -23,6 +23,6 @@ pub mod tfvec;
 
 // Re-export commonly used items
 pub use commit::Commit;
-pub use hllset::{HLLSet, BITS_PER_REG, M, P};
 pub use hashing::{murmur3_hash, murmur3_hash_seeded};
+pub use hllset::{HLLSet, BITS_PER_REG, M, P};
 pub use tfvec::TFVec;

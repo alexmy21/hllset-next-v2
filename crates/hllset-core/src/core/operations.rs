@@ -192,7 +192,10 @@ mod tests {
     fn test_xor_symmetric() {
         let a = make_set(&["x", "y"]);
         let b = make_set(&["y", "z"]);
-        assert_eq!(a.symmetric_difference(&b).popcount(), b.symmetric_difference(&a).popcount());
+        assert_eq!(
+            a.symmetric_difference(&b).popcount(),
+            b.symmetric_difference(&a).popcount()
+        );
     }
 
     #[test]

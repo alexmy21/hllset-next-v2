@@ -10,6 +10,7 @@ license = "MIT"
 
 [workspace.dependencies]
 # ── hllset crates ──
+hllset-contracts = { path = "crates/hllset-contracts" }
 hllset-core = { path = "crates/hllset-core" }
 hllset-storage = { path = "crates/hllset-storage" }
 hllset-dsl = { path = "crates/hllset-dsl" }
@@ -22,6 +23,7 @@ hllset-ranks = { path = "crates/hllset-ranks" }
 hllset-storage-redis = { path = "crates/hllset-storage-redis" }
 hllset-temporal = { path = "crates/hllset-temporal" }
 hllset-bridge = { path = "crates/hllset-bridge" }
+hllset-context = { path = "crates/hllset-context" }
 
 # ── HLLSet core deps (unchanged from original) ──
 murmur3 = "0.5"

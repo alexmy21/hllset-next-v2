@@ -537,10 +537,7 @@ impl CatalogLUT {
             .collect();
 
         for &pos in &positions {
-            self.reverse
-                .entry(pos)
-                .or_default()
-                .push(value.clone());
+            self.reverse.entry(pos).or_default().push(value.clone());
         }
 
         self.forward.insert(value, positions);
@@ -613,10 +610,7 @@ impl CatalogLUT {
 ///
 /// This provides collision resistance: a false positive from one seed
 /// is unlikely to coincide with false positives from other seeds.
-pub fn materialize_homogeneous_consensus(
-    hllset: &HLLSet,
-    lut: &CatalogLUT,
-) -> MaterializedResult {
+pub fn materialize_homogeneous_consensus(hllset: &HLLSet, lut: &CatalogLUT) -> MaterializedResult {
     let positions = hllset.active_positions();
     if positions.is_empty() || lut.is_empty() {
         return MaterializedResult {
@@ -729,9 +723,11 @@ impl Materializer {
     /// Auto-select strategy based on bit count and LUT properties.
     pub fn auto(&self, hllset: &HLLSet) -> MaterializedResult {
         // If LUT has n-grams (tokens containing NUL), try De Bruijn
-        let has_ngrams = self.lut.index.values().any(|tokens| {
-            tokens.iter().any(|t| t.contains(&0u8))
-        });
+        let has_ngrams = self
+            .lut
+            .index
+            .values()
+            .any(|tokens| tokens.iter().any(|t| t.contains(&0u8)));
 
         if has_ngrams && hllset.popcount() > 2 {
             self.debruijn(hllset)
@@ -990,22 +986,36 @@ mod tests {
         let result = materialize_homogeneous_consensus(&hllset, &lut);
         let flat = result.flat_strings();
         for &e in &emails {
-            assert!(flat.contains(&String::from_utf8_lossy(e).to_string()),
-                "missing: {}", String::from_utf8_lossy(e));
+            assert!(
+                flat.contains(&String::from_utf8_lossy(e).to_string()),
+                "missing: {}",
+                String::from_utf8_lossy(e)
+            );
         }
     }
 }
 
-
 // ── MaterializeEngine trait bridge ─────────────────────────────────
 
 impl hllset_materialize::MaterializeEngine for Materializer {
-    fn materialize(&self, hllset: &HLLSet, positions: &[(u16, u8)]) -> Result<Vec<Vec<u8>>, hllset_materialize::MaterializeError> {
+    fn materialize(
+        &self,
+        hllset: &HLLSet,
+        positions: &[(u16, u8)],
+    ) -> Result<Vec<Vec<u8>>, hllset_materialize::MaterializeError> {
         // Use the existing inlut materializer which handles position extraction internally
         let result = materialize_inlut(hllset, &self.lut);
-        let tokens: Vec<Vec<u8>> = result.flat_strings().into_iter().map(|s| s.into_bytes()).collect();
+        let tokens: Vec<Vec<u8>> = result
+            .flat_strings()
+            .into_iter()
+            .map(|s| s.into_bytes())
+            .collect();
         Ok(tokens)
     }
-    fn name(&self) -> &str { "inmemory" }
-    fn lut_count(&self) -> usize { self.lut.len() }
+    fn name(&self) -> &str {
+        "inmemory"
+    }
+    fn lut_count(&self) -> usize {
+        self.lut.len()
+    }
 }

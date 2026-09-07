@@ -230,7 +230,8 @@ mod tests {
 
     #[test]
     fn test_hllset_program() {
-        let src = r#""neural" "network" 2 INSCRIBE"gradient" "backprop" 2 INSCRIBE INTERSECT STORE"#;
+        let src =
+            r#""neural" "network" 2 INSCRIBE"gradient" "backprop" 2 INSCRIBE INTERSECT STORE"#;
         let ast = parse(src).unwrap();
         assert_eq!(ast.words.len(), 10);
         // Verify it round-trips through Display

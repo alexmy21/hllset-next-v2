@@ -35,7 +35,9 @@ pub struct DslRuntime {
 
 impl DslRuntime {
     /// Access the storage backend.
-    pub fn storage(&self) -> &dyn Storage { &*self.storage }
+    pub fn storage(&self) -> &dyn Storage {
+        &*self.storage
+    }
 
     /// Create a new DSL runtime with all bindings registered.
     pub fn new() -> LuaResult<Self> {
@@ -84,25 +86,26 @@ impl DslRuntime {
 
         // hllset.materialize(element, tokens) -> { confidence, tokens }
         use crate::materialize;
-        let materialize_fn = lua.create_function(|lua, (elem, tokens): (LatticeElement, Table)| {
-            let mut token_vec: Vec<Vec<u8>> = Vec::new();
-            for pair in tokens.pairs::<Value, Value>() {
-                let (_, v) = pair?;
-                if let Value::String(s) = v {
-                    token_vec.push(s.as_bytes().to_vec());
+        let materialize_fn =
+            lua.create_function(|lua, (elem, tokens): (LatticeElement, Table)| {
+                let mut token_vec: Vec<Vec<u8>> = Vec::new();
+                for pair in tokens.pairs::<Value, Value>() {
+                    let (_, v) = pair?;
+                    if let Value::String(s) = v {
+                        token_vec.push(s.as_bytes().to_vec());
+                    }
                 }
-            }
-            let lut = TokenLUT::from_tokens(&token_vec);
-            let result = materialize::materialize_inlut(elem.hllset(), &lut);
-            let tbl = lua.create_table()?;
-            tbl.set("confidence", result.confidence)?;
-            let tokens_tbl = lua.create_table()?;
-            for (i, t) in result.flat_strings().iter().enumerate() {
-                tokens_tbl.set(i + 1, t.as_str())?;
-            }
-            tbl.set("tokens", tokens_tbl)?;
-            Ok(tbl)
-        })?;
+                let lut = TokenLUT::from_tokens(&token_vec);
+                let result = materialize::materialize_inlut(elem.hllset(), &lut);
+                let tbl = lua.create_table()?;
+                tbl.set("confidence", result.confidence)?;
+                let tokens_tbl = lua.create_table()?;
+                for (i, t) in result.flat_strings().iter().enumerate() {
+                    tokens_tbl.set(i + 1, t.as_str())?;
+                }
+                tbl.set("tokens", tokens_tbl)?;
+                Ok(tbl)
+            })?;
         hllset_table.set("materialize", materialize_fn)?;
 
         // hllset.materialize_catalog(elem, values) -> { confidence, tokens }
@@ -131,7 +134,8 @@ impl DslRuntime {
         let storage_lua = Rc::clone(&storage);
         let store_fn = lua.create_function(move |_, elem: LatticeElement| {
             let data = elem.hllset().to_bytes();
-            storage_lua.store(elem.key(), &data)
+            storage_lua
+                .store(elem.key(), &data)
                 .map_err(|e| LuaError::external(e.to_string()))?;
             Ok(())
         })?;
@@ -139,7 +143,10 @@ impl DslRuntime {
 
         let storage_lua = Rc::clone(&storage);
         let load_fn = lua.create_function(move |_, key: String| {
-            match storage_lua.load(&key).map_err(|e| LuaError::external(e.to_string()))? {
+            match storage_lua
+                .load(&key)
+                .map_err(|e| LuaError::external(e.to_string()))?
+            {
                 Some(data) => {
                     let hllset = hllset_core::HLLSet::from_bytes(&data)
                         .ok_or_else(|| LuaError::external("invalid HLLSet data"))?;
@@ -152,31 +159,41 @@ impl DslRuntime {
 
         let storage_lua = Rc::clone(&storage);
         let exists_fn = lua.create_function(move |_, key: String| {
-            storage_lua.exists(&key).map_err(|e| LuaError::external(e.to_string()))
+            storage_lua
+                .exists(&key)
+                .map_err(|e| LuaError::external(e.to_string()))
         })?;
         hllset_table.set("exists", exists_fn)?;
 
         let storage_lua = Rc::clone(&storage);
         let list_fn = lua.create_function(move |_, prefix: String| {
-            storage_lua.list(&prefix).map_err(|e| LuaError::external(e.to_string()))
+            storage_lua
+                .list(&prefix)
+                .map_err(|e| LuaError::external(e.to_string()))
         })?;
         hllset_table.set("list", list_fn)?;
 
         let storage_lua = Rc::clone(&storage);
         let pin_fn = lua.create_function(move |_, key: String| {
-            storage_lua.pin(&key).map_err(|e| LuaError::external(e.to_string()))
+            storage_lua
+                .pin(&key)
+                .map_err(|e| LuaError::external(e.to_string()))
         })?;
         hllset_table.set("pin", pin_fn)?;
 
         let storage_lua = Rc::clone(&storage);
         let unpin_fn = lua.create_function(move |_, key: String| {
-            storage_lua.unpin(&key).map_err(|e| LuaError::external(e.to_string()))
+            storage_lua
+                .unpin(&key)
+                .map_err(|e| LuaError::external(e.to_string()))
         })?;
         hllset_table.set("unpin", unpin_fn)?;
 
         let storage_lua = Rc::clone(&storage);
         let gc_fn = lua.create_function(move |_, ()| {
-            storage_lua.gc().map_err(|e| LuaError::external(e.to_string()))
+            storage_lua
+                .gc()
+                .map_err(|e| LuaError::external(e.to_string()))
         })?;
         hllset_table.set("gc", gc_fn)?;
 
@@ -191,14 +208,12 @@ impl DslRuntime {
         hllset_table.set("get_tmp", get_tmp_fn)?;
 
         let storage_lua = Rc::clone(&storage);
-        let put_tmp_fn = lua.create_function(
-            move |_, (key, val): (String, mlua::String)| {
-                let val_bytes = val.as_bytes();
-                storage_lua
-                    .put_tmp(&key, &val_bytes)
-                    .map_err(|e| LuaError::external(e.to_string()))
-            },
-        )?;
+        let put_tmp_fn = lua.create_function(move |_, (key, val): (String, mlua::String)| {
+            let val_bytes = val.as_bytes();
+            storage_lua
+                .put_tmp(&key, &val_bytes)
+                .map_err(|e| LuaError::external(e.to_string()))
+        })?;
         hllset_table.set("put_tmp", put_tmp_fn)?;
 
         let storage_lua = Rc::clone(&storage);
@@ -709,12 +724,12 @@ mod tests {
     #[test]
     fn test_tokenize_lua_deterministic() {
         let rt = DslRuntime::new().unwrap();
-        let key1: String = rt.eval(
-            r#"local e = hllset.tokenize("hello world"); return e:key()"#
-        ).unwrap();
-        let key2: String = rt.eval(
-            r#"local e = hllset.tokenize("hello world"); return e:key()"#
-        ).unwrap();
+        let key1: String = rt
+            .eval(r#"local e = hllset.tokenize("hello world"); return e:key()"#)
+            .unwrap();
+        let key2: String = rt
+            .eval(r#"local e = hllset.tokenize("hello world"); return e:key()"#)
+            .unwrap();
         assert_eq!(key1, key2);
     }
 

@@ -8,16 +8,17 @@ use roaring::RoaringBitmap;
 use serde::{Deserialize, Serialize};
 
 /// Number of precision bits (P). Determines register count M = 2^P.
-pub const P: u32 = 10;
+/// Single source of truth: `hllset-contracts` (GOVERNANCE.md §3).
+pub const P: u32 = hllset_contracts::P;
 
 /// Number of registers (M = 2^P = 1024).
-pub const M: usize = 1 << P;
+pub const M: usize = hllset_contracts::M as usize;
 
 /// Number of bits tracked per register (trailing zeros 0..31).
-pub const BITS_PER_REG: u32 = 32;
+pub const BITS_PER_REG: u32 = hllset_contracts::BITS_PER_REG;
 
 /// Total bits in the bitmap tensor (M × 32 = 32768).
-pub const TOTAL_BITS: u32 = (M as u32) * BITS_PER_REG;
+pub const TOTAL_BITS: u32 = hllset_contracts::TOTAL_BITS;
 
 /// Alpha constant for standard HLL bias correction (M=1024).
 pub const ALPHA_M: f64 = 0.7213 / (1.0 + 1.079 / (M as f64));

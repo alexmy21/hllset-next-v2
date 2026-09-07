@@ -81,10 +81,7 @@ fn make_ngrams(tokens: &[&str], n: usize) -> HLLSet {
     if tokens.len() < n {
         return HLLSet::new();
     }
-    let ngrams: Vec<String> = tokens
-        .windows(n)
-        .map(|w| w.join("\0"))
-        .collect();
+    let ngrams: Vec<String> = tokens.windows(n).map(|w| w.join("\0")).collect();
     HLLSet::from_tokens(&ngrams)
 }
 
@@ -202,11 +199,7 @@ pub struct BridgeResult {
 /// 2. Extract 3-gram fingerprints from both
 /// 3. Rank-correlate against all candidates in the target lattice
 /// 4. Return top matches sorted by Spearman ρ
-pub fn bridge(
-    src: &HLLSet,
-    candidates: &HashMap<String, HLLSet>,
-    top_k: usize,
-) -> BridgeResult {
+pub fn bridge(src: &HLLSet, candidates: &HashMap<String, HLLSet>, top_k: usize) -> BridgeResult {
     let bridge_hllset = re_represent(src);
     let src_3gram = extract_3gram_from_hllset(src);
     let bridge_3gram = extract_3gram_from_hllset(&bridge_hllset);

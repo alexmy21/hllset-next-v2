@@ -181,11 +181,7 @@ mod tests {
 
     #[test]
     fn test_observable_mask_basic() {
-        let idx = make_index(&[
-            ("h:a", 100, 3, 50),
-            ("h:b", 50, 2, 30),
-            ("h:c", 10, 1, 5),
-        ]);
+        let idx = make_index(&[("h:a", 100, 3, 50), ("h:b", 50, 2, 30), ("h:c", 10, 1, 5)]);
         let mask = ObservableMask::apply(&idx, 25);
         // a (100) and b (50) above 25, c (10) below
         assert!(mask.is_observable("h:a"));
@@ -212,11 +208,7 @@ mod tests {
     #[test]
     fn test_sub_lattice_degree() {
         let mut degree = SubLatticeDegree::new();
-        let idx = make_index(&[
-            ("h:a", 100, 3, 50),
-            ("h:b", 50, 2, 30),
-            ("h:c", 10, 1, 5),
-        ]);
+        let idx = make_index(&[("h:a", 100, 3, 50), ("h:b", 50, 2, 30), ("h:c", 10, 1, 5)]);
         let mask = ObservableMask::apply(&idx, 25);
 
         degree.add_edge("h:a", "h:b", &mask);

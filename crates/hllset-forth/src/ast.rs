@@ -15,10 +15,7 @@ pub enum Word {
     /// A sequence of words (for blocks, definitions).
     Seq(Vec<Word>),
     /// A colon definition: `: NAME body... ;`
-    ColonDef {
-        name: String,
-        body: Vec<Word>,
-    },
+    ColonDef { name: String, body: Vec<Word> },
 }
 
 /// A complete Forth program: a sequence of words.

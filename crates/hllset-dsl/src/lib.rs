@@ -57,10 +57,17 @@ pub mod worker;
 
 pub use distributed::{BSSRouter, MultiSourceMerge, NodeFingerprint};
 pub use lattice::LatticeElement;
-pub use materialize::{MaterializedResult, Materializer, TokenLUT, DenseLUT, CatalogLUT, materialize_debruijn, materialize_inlut, materialize_ngram_cross_validate, materialize_homogeneous_consensus};
+pub use materialize::{
+    materialize_debruijn, materialize_homogeneous_consensus, materialize_inlut,
+    materialize_ngram_cross_validate, CatalogLUT, DenseLUT, MaterializedResult, Materializer,
+    TokenLUT,
+};
 
 // Re-export the pluggable materialization engine trait
-pub use hllset_materialize::{MaterializeEngine, MaterializeError, InMemoryEngine, DuckDBEngine, FPGASimEngine, MaterializeRegistry};
+pub use hllset_materialize::{
+    DuckDBEngine, FPGASimEngine, InMemoryEngine, MaterializeEngine, MaterializeError,
+    MaterializeRegistry,
+};
 pub use runtime::DslRuntime;
 pub use tokenizer::{Normalizer, Tokenizer};
 pub use worker::Worker;
@@ -68,6 +75,9 @@ pub use worker::Worker;
 // Re-export core types for convenient single-crate usage in notebooks
 pub use hllset_core::{
     core::bss::BSSResult,
-    core::hashing::{murmur3_hash_seeded, murmur3_hash, hash_to_position, token_to_position, token_to_position_seeded},
+    core::hashing::{
+        hash_to_position, murmur3_hash, murmur3_hash_seeded, token_to_position,
+        token_to_position_seeded,
+    },
     HLLSet, BITS_PER_REG, M, P,
 };

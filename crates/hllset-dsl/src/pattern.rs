@@ -240,11 +240,9 @@ impl Pattern {
                 })
             }
 
-            Pattern::Alt(first, second) => {
-                first
-                    .try_match(input, pos)
-                    .or_else(|| second.try_match(input, pos))
-            }
+            Pattern::Alt(first, second) => first
+                .try_match(input, pos)
+                .or_else(|| second.try_match(input, pos)),
 
             Pattern::Capture(inner) => {
                 let m = inner.try_match(input, pos)?;
@@ -381,10 +379,7 @@ mod tests {
             .cat(space)
             .cat(alpha.clone().capture());
         let m = p.match_at(b"hello world", 0).unwrap();
-        assert_eq!(
-            m.captures,
-            vec![b"hello".to_vec(), b"world".to_vec()]
-        );
+        assert_eq!(m.captures, vec![b"hello".to_vec(), b"world".to_vec()]);
     }
 
     // ── Find ──
@@ -417,9 +412,8 @@ mod tests {
 
     #[test]
     fn test_tokenize_words() {
-        let letter = Pattern::span(
-            b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
-        );
+        let letter =
+            Pattern::span(b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         let tokens = letter.find_all(b"the cat sat on the mat", 0);
         let words: Vec<&str> = tokens
             .iter()
@@ -437,9 +431,6 @@ mod tests {
         let csv_row = csv_cell.clone().cat(comma).cat(csv_cell.clone());
 
         let m = csv_row.match_at(b"hello,world", 0).unwrap();
-        assert_eq!(
-            m.captures,
-            vec![b"hello".to_vec(), b"world".to_vec()]
-        );
+        assert_eq!(m.captures, vec![b"hello".to_vec(), b"world".to_vec()]);
     }
 }

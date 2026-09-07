@@ -51,8 +51,7 @@ fn compile_word(
         if line.starts_with("-- value:") {
             let parts: Vec<&str> = line[9..].splitn(2, '=').collect();
             if parts.len() == 2 {
-                if let Ok(n) = parts[1].trim().parse::<f64>() {
-                }
+                if let Ok(n) = parts[1].trim().parse::<f64>() {}
             }
         }
     }
@@ -112,9 +111,7 @@ fn compile_word(
                 // HLLSet creation
                 "INSCRIBE" => {
                     if let Some(count_var) = stack.pop() {
-                        let count: usize = values.get(&count_var)
-                            .map(|n| *n as usize)
-                            .unwrap_or(1);
+                        let count: usize = values.get(&count_var).map(|n| *n as usize).unwrap_or(1);
                         let mut token_vars = Vec::new();
                         for _ in 0..count {
                             if let Some(tv) = stack.pop() {
@@ -131,10 +128,7 @@ fn compile_word(
                 "TOKENIZE" => {
                     if let Some(text) = stack.pop() {
                         let v = new_var(counter);
-                        lua.push_str(&format!(
-                            "{} = hllset.tokenize({})\n",
-                            v, text
-                        ));
+                        lua.push_str(&format!("{} = hllset.tokenize({})\n", v, text));
                         stack.push(v);
                     }
                 }
@@ -167,10 +161,7 @@ fn compile_word(
                         let b = stack.pop().unwrap();
                         let a = stack.pop().unwrap();
                         let v = new_var(counter);
-                        lua.push_str(&format!(
-                            "{} = {}:bss_inclusion({})\n",
-                            v, a, b
-                        ));
+                        lua.push_str(&format!("{} = {}:bss_inclusion({})\n", v, a, b));
                         stack.push(v);
                     }
                 }
@@ -247,13 +238,7 @@ fn compile_word(
             let mut body_counter = 0;
             let mut body_values = std::collections::HashMap::new();
             for w in body {
-                compile_word(
-                    w,
-                    lua,
-                    &mut body_stack,
-                    &mut body_counter,
-                    &mut body_values,
-                );
+                compile_word(w, lua, &mut body_stack, &mut body_counter, &mut body_values);
             }
             // Return the top of stack (or empty table)
             if body_stack.is_empty() {

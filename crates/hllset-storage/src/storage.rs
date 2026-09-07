@@ -14,10 +14,7 @@ pub enum StorageError {
     #[error("serialization: {0}")]
     Serialization(String),
     #[error("CAS mismatch: expected {expected:?}, got {actual:?}")]
-    CasMismatch {
-        expected: Vec<u8>,
-        actual: Vec<u8>,
-    },
+    CasMismatch { expected: Vec<u8>, actual: Vec<u8> },
 }
 
 /// Convenience result type.
@@ -62,25 +59,35 @@ pub trait Storage {
 
     /// PIN: prevent garbage collection. Idempotent.
     /// Default: no-op (backends that don't support GC don't need pins).
-    fn pin(&self, _key: &str) -> Result<()> { Ok(()) }
+    fn pin(&self, _key: &str) -> Result<()> {
+        Ok(())
+    }
 
     /// UNPIN: allow garbage collection. Idempotent.
-    fn unpin(&self, _key: &str) -> Result<()> { Ok(()) }
+    fn unpin(&self, _key: &str) -> Result<()> {
+        Ok(())
+    }
 
     /// GC: garbage collect — remove all unpinned keys. Returns removed keys.
     /// Default: returns empty (backends without GC support).
-    fn gc(&self) -> Result<Vec<String>> { Ok(Vec::new()) }
+    fn gc(&self) -> Result<Vec<String>> {
+        Ok(Vec::new())
+    }
 
     // ── Temporal Operations ────────────────────────────────────────────
 
     /// PUT_TMP: store bytes under a temporal (user-assigned) key.
     /// Not content-addressed — key is a human-readable name like `system:tf`.
     /// Default: no-op (backends without temporal support).
-    fn put_tmp(&self, _key: &str, _data: &[u8]) -> Result<()> { Ok(()) }
+    fn put_tmp(&self, _key: &str, _data: &[u8]) -> Result<()> {
+        Ok(())
+    }
 
     /// GET_TMP: load bytes from a temporal key. Returns `None` if not found.
     /// Default: returns `None`.
-    fn get_tmp(&self, _key: &str) -> Result<Option<Vec<u8>>> { Ok(None) }
+    fn get_tmp(&self, _key: &str) -> Result<Option<Vec<u8>>> {
+        Ok(None)
+    }
 
     /// CAS_TMP: compare-and-swap on a temporal key.
     /// If current value equals `old`, atomically replace with `new`.

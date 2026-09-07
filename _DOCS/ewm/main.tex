@@ -46,8 +46,10 @@ this not by matching cardinalities directly, but through \textit{bootstrap
 permutation}---multiplying measurements (e.g., n-grams) to bridge representational gaps
 without sacrificing resolution. \textbf{(4) Noether Evolution:} structural change in an
 EWM obeys conservation laws; every symmetry of the measurement regime yields a conserved
-quantity. The lattice union invariant, the DRN decomposition, and the holographic
-reconstruction property are all consequences of this principle. We ground each principle
+quantity. The lattice union invariant, the DRN decomposition (with its Lie-group
+reading and N-steering control), the orthogonal channel decomposition, and the
+holographic reconstruction property are all consequences of this principle. We
+ground each principle
 in the concrete instantiation of HLLSet Algebra and articulate the target formalism---a
 Grothendieck topology on the category of measurement patches---toward which the framework
 aspires, in spirit if not yet in letter.
@@ -503,6 +505,7 @@ temporal layers:
 \end{equation}
 
 \begin{theorem}[Temporal Union Invariant]
+\label{thm:union}
 For any sequence of measurement events and any cascade policy, the bitwise union of all
 temporal layers is monotonic and convergent. Information is never lost from
 $H_{\text{system}}$; it is only redistributed across layers.
@@ -549,6 +552,58 @@ evolves. In rank-weighted form:
 This is the EWM analog of energy conservation: the total ``rank mass'' of the system is
 conserved across transitions. Learning is not accumulation---it is redistribution.
 
+\subsection{The Lie-Group Reading of the DRN Decomposition}
+\label{sec:lie-drn}
+
+The DRN decomposition has a precise group-theoretic interpretation connecting
+it to on-manifold optimization for rigid-body motion \cite{argueta2026}. The
+patch space $\mathcal{B} = \{0,1\}^{32{,}768}$ is not only a join-semilattice
+under OR; it is a \textbf{Boolean ring}, hence an abelian group under symmetric
+difference (XOR). For a transition $A = H(t-1) \to B = H(t)$:
+
+\begin{equation}
+  S \;=\; A \oplus B \;=\; (A \setminus B) \sqcup (B \setminus A)
+  \;=\; D(t-1) \sqcup N(t),
+\end{equation}
+
+where $\sqcup$ denotes disjoint union. The retained context is the fixed part
+$R(t-1) = A \cap B$, and the two states decompose as
+
+\begin{equation}
+  A = R \oplus D, \qquad B = R \oplus N, \qquad B = A \oplus S.
+\end{equation}
+
+Thus $(N, D)$ are the coordinates of the transition in the tangent space at
+$A$---the DRN split is the ``logarithm'' of the group relative transform, with
+$R$ as the stabilizer. The cardinality balance follows immediately:
+
+\begin{equation}
+  |B| = |A| - |D| + |N|,
+\end{equation}
+
+so the Noether steering condition
+$|\,\text{card}(N(t)) - \text{card}(D(t-1))\,| \to 0$ is equivalent to
+$|H(t)| = |H(t-1)|$. Geometrically, the update has \textbf{zero radial
+component}: the state's velocity is tangent to the Hamming sphere of constant
+cardinality---a pure ``rotation'' of structure, in which content changes while
+the measure is preserved. In the language of on-manifold optimization,
+stability as $D$--$N$ balance is not a flat-space approximation but the correct
+first-order on-manifold condition.
+
+\begin{remark}[Gauge Fixing: Where $D$ and $N$ Must Be Measured]
+The Temporal Union Invariant (Theorem~\ref{thm:union}) makes
+$H_{\text{system}}$ monotone: bits never leave the system, so at the system
+level $D \equiv 0$ and the balance can never hold. Conversely, at the raw layer
+level, the cascade moves a bit from $L_0$ to $L_1$, recording a departure in one
+layer and a novelty in the other---a ``wrap-around'' artifact analogous to
+subtracting the angles $179^\circ$ and $-179^\circ$ and obtaining $358^\circ$
+instead of $2^\circ$. The DRN balance must therefore be measured on the
+\textbf{operative state}---the thresholded working set $\mathcal{S}(t)$ of
+Section~\ref{sec:cortex-learning}---modulo the cascade symmetry. Departure
+means \textit{stopped attending}, not erased: an excluded HLLSet remains
+content-addressed and re-admissible at any time.
+\end{remark}
+
 \subsection{The Holographic Property as Noether Consequence}
 
 The holographic property---that the lattice top $H_{\text{system}}$ plus the TF stack
@@ -593,6 +648,116 @@ to the current situation. The six control parameters (pyramid depth, rank functi
 attention threshold, steering thresholds) are the knobs of structural evolution, not the
 parameters of a learned function.
 
+\subsection{N-Steering: Novelty as Control Input}
+\label{sec:n-steering}
+
+In on-manifold optimization one chooses a full tangent vector and retracts it
+onto the manifold. The EWM controller, by contrast, directly controls only the
+\textbf{positive} component of the transition---the novelty channel $N$---via
+the gate thresholds $\theta_{\tau}, \theta_{\rho}$, the bootstrap depth, and the
+measurement policy. The departure $D$ is the passive response (window expiry,
+rank decay, cascade). N-steering is therefore a \textbf{one-sided control
+problem}: steer the innovation axis so that it tracks the predicted decay.
+
+\begin{definition}[N-Steering Law]
+Let $\widehat{D}(t)$ be the departure predicted by a Type-1 forward model from
+the current lattice state and control settings. The N-steering law sets the
+novelty throttle so that
+\begin{equation}
+  \mathbb{E}\bigl[\text{card}(N(t))\bigr]
+  \;\to\; \mathbb{E}\bigl[\text{card}(\widehat{D}(t))\bigr],
+\end{equation}
+enforcing zero \textit{expected} radial drift:
+$\mathbb{E}[|H(t)|] = \mathbb{E}[|H(t-1)|]$. The Noether condition becomes a
+control objective, not a post-hoc diagnostic.
+\end{definition}
+
+The two-stage form of N-steering follows from the measurement structure of
+Section~\ref{sec:channels}. First \textbf{unwrap}: a novelty spike in the coarse
+channel may be the same structure measured at insufficient resolution; deepening
+the bootstrap re-expresses apparent novelty as retained context before any
+balance is attempted. Second \textbf{balance}: only the residual novelty---that
+which survives re-measurement at higher n-gram order---is balanced against the
+predicted departure. This is the EWM analog of the on-manifold rule: do not
+subtract raw angles, unwrap first.
+
+\subsection{Noether Steering Validation: The Measurement Hierarchy}
+\label{sec:newton-hierarchy}
+
+The N-steering law of Section~\ref{sec:n-steering} is validated by three
+measurements of the transition, read directly from the immutable lattice. None
+of the three modifies $S(t)$, $H(t)$, $H(t-1)$, or the DRN components---the
+HLLSets are unchanged after measurement. None creates new bit positions
+($\langle \text{reg}, \text{zeros} \rangle$ pairs): new bits in an HLLSet
+vector can be created only during ingestion. The three orders are therefore
+\textbf{non-invasive observables}: each is a pure read of the lattice, and no
+order is obtained by differentiating a lower-order estimate. The hierarchy is
+one of measurement, not of error propagation.
+
+Define, on the causal pair $(N(t), D(t-1))$,
+
+\begin{align}
+  v(t) &= \text{card}(N(t)) - \text{card}(D(t-1)), \\
+  \delta N(t) &= \text{card}(N(t)) - \text{card}(N(t-1)), \\
+  \delta D(t) &= \text{card}(D(t-1)) - \text{card}(D(t-2)), \\
+  a(t) &= \delta N(t) - \delta D(t) \;=\; v(t) - v(t-1), \\
+  F(t) &= m(t)\, a(t),
+\end{align}
+
+where $m(t)$ is the rank mass of $S(t)$ (the raw cardinality
+$\text{card}(S(t))$ is the cruder special case) and
+$D(t-2) = H(t-2) \setminus H(t-1)$ is the departure of the preceding
+transition. The three validation measurements are:
+
+\begin{enumerate}[leftmargin=*,nosep]
+  \item \textbf{Zeroth order (homeostasis):}
+    $|\,\text{card}(N(t)) - \text{card}(D(t-1))\,| \to 0$---the original
+    Noether steering condition, equivalently $v(t) = 0$.
+  \item \textbf{First order (inertial stability):} $\delta N(t) = \delta D(t)$,
+    equivalently $a(t) = 0$: the net flux is constant, so the system may stand
+    still or grow or decay at a steady rate. Uniform flux---not flux equal to
+    zero---is the inertial signature of stability.
+  \item \textbf{Second order (steering force):} $F(t) = m(t)\, a(t)$---the
+    force the N-steering controller must apply to change the trajectory.
+\end{enumerate}
+
+Each order is an independent measurement of the same underlying state: the
+first-order condition does not inherit estimation error from the zeroth, and
+the second does not inherit from the first, because all are read directly from
+the lattice. The three orders form a jet hierarchy $J^0 \subset J^1 \subset
+J^2$ over the state trajectory.
+
+\begin{remark}[Newtonian Reading as Analogy]
+The three orders read as the three laws of Newtonian dynamics. The analogy is
+intended to identify the roots of the thinking, not to install dynamics on the
+lattice:
+
+\begin{itemize}[leftmargin=*,nosep]
+  \item \textbf{First law.} $a(t) = 0$ implies $v(t) = \text{const}$: the
+    system stays still ($v = 0$, the zeroth-order condition) or moves with
+    steady flux (uniform growth or decay). In scalar form this is uniform
+    motion of the measure; ``straight-line'' motion in the full Boolean ring
+    additionally requires the direction of the transition
+    $S(t) = N(t) \sqcup D(t-1)$ to be stationary.
+  \item \textbf{Second law.} The steering force is the product $F = m\,a$,
+    not the pair $[m, a]$. The channel accelerations combine signed:
+    $a = \delta N - \delta D$. Taking magnitudes per channel before
+    subtraction would erase the force precisely in the regime where ingress
+    and egress diverge in opposite directions.
+  \item \textbf{Third law.} Action and reaction at the $D$--$N$ boundary follow
+    not from the second law but from momentum conservation---the union
+    invariant (Theorem~\ref{thm:union}) and the rank-mass conservation of
+    Principle~4. The internal channel forces cancel; only the net force
+    $m\,a$ drives the center of mass.
+\end{itemize}
+\end{remark}
+
+Because the measurements are exact reads of the immutable lattice, the
+remaining variability in $a(t)$ and $F(t)$ is environmental, not measurement
+error. The Noether controller may smooth the force signal over the temporal
+pyramid before acting; this is control-theoretic filtering, not a correction
+of the measurement.
+
 % ==========================================================================
 \section{HLLSet Algebra: Concrete Instantiation}
 \label{sec:hllset}
@@ -627,6 +792,115 @@ The tokenizer's n-gram pipeline (1-grams, 2-grams, 3-grams with boundary padding
 implements Principle~3 (bootstrap permutation). Each n-gram order is a distinct
 measurement view of the same token stream. The union of n-gram HLLSets produces a richer
 representation than any single order alone.
+
+\subsection{Orthogonal Channel Decomposition and Error Narrowing}
+\label{sec:channels}
+
+The n-gram bootstrap has a structural refinement: the 1-gram, 2-gram, and
+3-gram views are hashed into \textbf{pairwise disjoint} bit ranges. Within
+every HLLSet, $H_1 \cap H_2 = H_1 \cap H_3 = H_2 \cap H_3 = \emptyset$; each
+HLLSet is therefore a disjoint union
+
+\begin{equation}
+  H = H_1 \sqcup H_2 \sqcup H_3, \qquad |H| = |H_1| + |H_2| + |H_3|,
+\end{equation}
+
+where $H_n = H \cap G_n$ and $G_n$ is the global order-$n$ gate (bit-range
+mask). The three channels are \textbf{orthogonal} components of the
+measurement: a dense 3-gram population cannot pollute the 1-gram channel, and
+vice versa.
+
+\begin{proposition}[Additivity of BSS over Channels]
+\label{prop:channel-bss}
+For HLLSets $A = A_1 \sqcup A_2 \sqcup A_3$ and
+$B = B_1 \sqcup B_2 \sqcup B_3$ with pairwise disjoint channels, all
+cross-terms vanish and
+\begin{equation}
+  A \cap B = (A_1 \cap B_1) \sqcup (A_2 \cap B_2) \sqcup (A_3 \cap B_3),
+\end{equation}
+so the aggregate BSS is the convex combination
+\begin{equation}
+  \text{BSS}_{\tau}(A \to B) = \sum_{n=1}^{3} w_n\,
+  \text{BSS}_{\tau}(A_n \to B_n), \qquad w_n = \frac{|B_n|}{|B|},
+\end{equation}
+and likewise for $\text{BSS}_{\rho}$. The DRN components are additive:
+$N = N_1 \sqcup N_2 \sqcup N_3$, $D = D_1 \sqcup D_2 \sqcup D_3$, and
+\begin{equation}
+  |N| - |D| = \sum_{n=1}^{3} \bigl(|N_n| - |D_n|\bigr).
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+For $n \neq m$, $A_n \cap B_m \subseteq G_n \cap G_m = \emptyset$. All
+intersection and difference cardinalities therefore decompose additively over
+the channels.
+\end{proof}
+
+\begin{remark}[Token-Level Nesting vs.\ Bit-Level Orthogonality]
+The channels are orthogonal in the \textit{image} (bit space), while the token
+structures they measure are nested in the \textit{preimage}: a shared 3-gram
+contains a shared 2-gram and shared 1-grams, so at the token level relational
+overlap implies element overlap---but not conversely (a shared element in
+different contexts has empty 2- and 3-gram intersections). The nesting
+information lives in the LUT; the bitmasks provide three independent
+coordinates, and the LUT supplies the semantic relations between them.
+\end{remark}
+
+\subsubsection{Error Narrowing}
+
+The orthogonality of the channels makes the three channel-wise BSS values
+independent observables, narrowing measurement error in two ways.
+
+First, each channel yields an \textbf{exact disjointness certificate}. Because
+hashing is deterministic (IICA), a shared n-gram always sets the same bits in
+both measurements; contrapositively,
+
+\begin{equation}
+  H_n(A) \cap H_n(B) = \emptyset \;\Longrightarrow\;
+  \text{$A$ and $B$ share no $n$-grams} \qquad \text{(exactly)},
+\end{equation}
+
+with zero false negatives: the only error mode of the bitwise intersection is
+false positives (hash collisions between distinct n-grams).
+
+Second, the false-positive error composes cleanly. For disjoint channel
+occupancies $o_{A,n}, o_{B,n}$ in a channel of $m_n$ bits, the expected fake
+overlap is $o_{A,n}\, o_{B,n} / m_n$. The aggregate fake overlap is the sum
+$\sum_n o_{A,n}\, o_{B,n} / m_n$, while the \textbf{joint agreement test}---
+requiring non-empty intersection in all three channels before declaring genuine
+overlap---has error $\varepsilon_1 \varepsilon_2 \varepsilon_3$: because the
+channels are disjoint, collision events are independent across orders and the
+error narrows multiplicatively.
+
+\begin{remark}[Bit-Budget Trade-off]
+Orthogonality costs resolution: each channel receives only a fraction of the
+$32{,}768$ bits, so per-channel collision rates are higher than in a shared
+space. The near-optimal allocation equalizes density, $m_n$ proportional to the
+expected occupancy of order $n$. For streaming measurement the three
+occupancies are comparable and an equal split is adequate; for corpus-scale
+3-gram accumulation the 3-gram channel saturates first and deserves a larger
+range.
+\end{remark}
+
+\subsubsection{Materialization as Local Repair}
+
+The 3-gram channel is nearly deterministic: for almost every set bit
+$b \in H_1$, the 3-gram evidence reduces the candidate set $\mathcal{L}_1[b]$
+(the LUT entries hashing to $b$) to a singleton. Define the partial section
+
+\begin{equation}
+  \phi(b) = \text{the unique } x \in \mathcal{L}_1[b]
+  \text{ whose 3-gram neighborhood is present in } H_3.
+\end{equation}
+
+Where $\phi$ is single-valued, materialization is the evaluation of a
+section---no global reconstruction. Only on the ambiguity set
+$\{b : |\phi^{-1}(b)| > 1\}$, of collision measure $\sim 10^{-5}$, is a local
+repair needed (TF ranking or local De Bruijn). The materializer is thereby
+demoted from a pipeline stage to an exception handler; the lattice dynamics
+(BSS, DRN, N-steering) never require it. Materialization remains necessary only
+at the I/O boundary, where the system must emit encodings to an external
+decoder.
 
 \subsection{Rank Algebra as Learning}
 
@@ -954,6 +1228,12 @@ Lecture Notes in Mathematics, Vols.~269, 270, 305. Springer, 1972--1973.
 S.~Mac Lane, I.~Moerdijk.
 \emph{Sheaves in Geometry and Logic: A First Introduction to Topos Theory}.
 Springer, 1992.
+
+\bibitem{argueta2026}
+C.~Argueta.
+\emph{Lie Groups and On-Manifold Optimization}.
+Soul Hackers Labs, Medium, July 2026.
+\url{https://soulhackerslabs.com/lie-groups-and-on-manifold-optimization-b0814ae7511b}
 
 \bibitem{lincoln2026}
 A.~Lincoln.
@@ -1434,6 +1714,15 @@ materialize, uncertainty is increasing, and the lattice is destabilizing. At
 steady state, under the Noether steering condition $|\text{card}(N(t)) -
 \text{card}(D(t-1))| \to 0$, both components stabilize and $\delta_{\text{BSS}}
 \to \text{const}$.
+
+By the orthogonal channel decomposition (Section~\ref{sec:channels}), each of
+the three signals decomposes additively over the 1-, 2-, and 3-gram channels,
+yielding three independent opponent-process triads---one per structural
+order---with $\delta_{\text{BSS}} = \sum_n w_n \delta_{\text{BSS},n}$. The
+3-gram channel is the high-confidence vote: a novelty signal present in $N_1$
+but absent from $N_2$ and $N_3$ is collision noise or context-free churn, not
+structural novelty, and should not move the N-steering controller
+(Section~\ref{sec:n-steering}) until the LUT arbitrates.
 
 Critically, all three BSS components are \textbf{content-independent} in
 Lincoln's sense. They depend only on the structural fact of bit-level inclusion

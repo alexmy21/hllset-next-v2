@@ -63,14 +63,10 @@ impl NoetherSteering {
         let curr_hll = curr.hllset();
 
         // Collect positions
-        let prev_positions: std::collections::HashSet<(u32, u32)> = prev_hll
-            .active_positions()
-            .into_iter()
-            .collect();
-        let curr_positions: std::collections::HashSet<(u32, u32)> = curr_hll
-            .active_positions()
-            .into_iter()
-            .collect();
+        let prev_positions: std::collections::HashSet<(u32, u32)> =
+            prev_hll.active_positions().into_iter().collect();
+        let curr_positions: std::collections::HashSet<(u32, u32)> =
+            curr_hll.active_positions().into_iter().collect();
 
         // N(t) = curr - prev (newly added)
         let n_count = curr_positions.difference(&prev_positions).count() as u64;
@@ -123,14 +119,10 @@ impl RankFlux {
         let prev_hll = prev.hllset();
         let curr_hll = curr.hllset();
 
-        let prev_positions: std::collections::HashSet<(u32, u32)> = prev_hll
-            .active_positions()
-            .into_iter()
-            .collect();
-        let curr_positions: std::collections::HashSet<(u32, u32)> = curr_hll
-            .active_positions()
-            .into_iter()
-            .collect();
+        let prev_positions: std::collections::HashSet<(u32, u32)> =
+            prev_hll.active_positions().into_iter().collect();
+        let curr_positions: std::collections::HashSet<(u32, u32)> =
+            curr_hll.active_positions().into_iter().collect();
 
         // Retained: in both
         let retained: Vec<_> = prev_positions.intersection(&curr_positions).collect();

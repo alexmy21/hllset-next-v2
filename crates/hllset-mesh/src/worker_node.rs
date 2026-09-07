@@ -39,14 +39,8 @@ impl WorkerNode {
 
         let result: serde_json::Value = match req.op.as_str() {
             "tokenize" => {
-                let text = req
-                    .args
-                    .as_str()
-                    .unwrap_or_default();
-                let tokens: Vec<String> = text
-                    .split_whitespace()
-                    .map(|s| s.to_string())
-                    .collect();
+                let text = req.args.as_str().unwrap_or_default();
+                let tokens: Vec<String> = text.split_whitespace().map(|s| s.to_string()).collect();
                 let elem = LatticeElement::from_tokens(&tokens);
                 serde_json::Value::String(elem.key().to_string())
             }
@@ -54,7 +48,11 @@ impl WorkerNode {
                 let tokens: Vec<String> = req
                     .args
                     .as_array()
-                    .map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(|v| v.as_str().map(String::from))
+                            .collect()
+                    })
                     .unwrap_or_default();
                 let elem = LatticeElement::from_tokens(&tokens);
                 serde_json::Value::String(elem.key().to_string())
@@ -79,7 +77,11 @@ impl WorkerNode {
                     .as_array()
                     .and_then(|a| a.first())
                     .and_then(|v| v.as_array())
-                    .map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+                    .map(|a| {
+                        a.iter()
+                            .filter_map(|v| v.as_str().map(String::from))
+                            .collect()
+                    })
                     .unwrap_or_default();
                 let elem = LatticeElement::from_tokens(&tokens);
                 let val = serde_json::Number::from_f64(elem.cardinality())
@@ -102,16 +104,26 @@ impl WorkerNode {
         &self,
         args: &serde_json::Value,
     ) -> Result<(LatticeElement, LatticeElement), String> {
-        let arr = args.as_array().ok_or("args must be array of two token arrays")?;
+        let arr = args
+            .as_array()
+            .ok_or("args must be array of two token arrays")?;
         let tokens_a: Vec<String> = arr
             .first()
             .and_then(|v| v.as_array())
-            .map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+            .map(|a| {
+                a.iter()
+                    .filter_map(|v| v.as_str().map(String::from))
+                    .collect()
+            })
             .unwrap_or_default();
         let tokens_b: Vec<String> = arr
             .get(1)
             .and_then(|v| v.as_array())
-            .map(|a| a.iter().filter_map(|v| v.as_str().map(String::from)).collect())
+            .map(|a| {
+                a.iter()
+                    .filter_map(|v| v.as_str().map(String::from))
+                    .collect()
+            })
             .unwrap_or_default();
 
         Ok((

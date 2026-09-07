@@ -136,10 +136,7 @@ mod tests {
         let a = set(&["a", "b"]);
         let b = set(&["c", "d"]);
         let tau = a.bss_inclusion(&b);
-        assert!(
-            (0.0..=1.0).contains(&tau),
-            "tau out of bounds: {tau}"
-        );
+        assert!((0.0..=1.0).contains(&tau), "tau out of bounds: {tau}");
     }
 
     #[test]
@@ -168,8 +165,11 @@ mod tests {
         let b = HLLSet::from_tokens(&tokens_b);
 
         let result = a.morph_to(&b, 0.8, 0.1);
-        assert!(result.morphism_holds,
-            "subset morphism should hold; τ={}, ρ={}", result.inclusion, result.exclusion);
+        assert!(
+            result.morphism_holds,
+            "subset morphism should hold; τ={}, ρ={}",
+            result.inclusion, result.exclusion
+        );
     }
 
     #[test]
@@ -177,8 +177,11 @@ mod tests {
         let a = set(&["a", "b"]);
         let b = set(&["c", "d"]);
         let result = a.morph_to(&b, 0.8, 0.2);
-        assert!(!result.morphism_holds,
-            "disjoint should not morph; τ={}, ρ={}", result.inclusion, result.exclusion);
+        assert!(
+            !result.morphism_holds,
+            "disjoint should not morph; τ={}, ρ={}",
+            result.inclusion, result.exclusion
+        );
     }
 
     #[test]

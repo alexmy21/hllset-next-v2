@@ -185,11 +185,7 @@ mod tests {
     #[test]
     fn test_max_pool() {
         let h = MaxPoolAggregator;
-        let bits = vec![
-            make_bit(0, 0, 5),
-            make_bit(0, 1, 42),
-            make_bit(0, 2, 17),
-        ];
+        let bits = vec![make_bit(0, 0, 5), make_bit(0, 1, 42), make_bit(0, 2, 17)];
         assert_eq!(h.aggregate(0, &bits), 42);
     }
 
@@ -203,7 +199,7 @@ mod tests {
         ];
         // mask: bits 0 and 3 set → 1 + 8 = 9
         assert_eq!(h.aggregate_masked(0, &bits, 0b1001), 500); // 100 + 400
-        // mask: only bit 1 set → 2
+                                                               // mask: only bit 1 set → 2
         assert_eq!(h.aggregate_masked(0, &bits, 0b0010), 200);
         // mask: no matching bits
         assert_eq!(h.aggregate_masked(0, &bits, 0), 0);

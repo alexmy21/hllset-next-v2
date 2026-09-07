@@ -101,15 +101,11 @@ impl Storage for MemoryStorage {
                 temporal.insert(key.to_string(), new.to_vec());
                 Ok(true)
             }
-            Some(current) => {
-                Err(StorageError::CasMismatch {
-                    expected: old.to_vec(),
-                    actual: current.clone(),
-                })
-            }
-            None => {
-                Err(StorageError::NotFound(key.to_string()))
-            }
+            Some(current) => Err(StorageError::CasMismatch {
+                expected: old.to_vec(),
+                actual: current.clone(),
+            }),
+            None => Err(StorageError::NotFound(key.to_string())),
         }
     }
 }
@@ -186,10 +182,7 @@ mod tests {
         s.put_tmp("system:head", b"old_cid").unwrap();
         let ok = s.cas_tmp("system:head", b"old_cid", b"new_cid").unwrap();
         assert!(ok);
-        assert_eq!(
-            s.get_tmp("system:head").unwrap(),
-            Some(b"new_cid".to_vec())
-        );
+        assert_eq!(s.get_tmp("system:head").unwrap(), Some(b"new_cid".to_vec()));
     }
 
     #[test]

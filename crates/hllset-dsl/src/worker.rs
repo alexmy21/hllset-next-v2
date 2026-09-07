@@ -13,7 +13,9 @@ pub struct Worker<S: Storage> {
 }
 
 impl<S: Storage> Worker<S> {
-    pub fn new(storage: S) -> Self { Self { storage } }
+    pub fn new(storage: S) -> Self {
+        Self { storage }
+    }
 
     pub fn load_hllset(&self, key: &str) -> Option<HLLSet> {
         let bytes = self.storage.load(key).ok()??;

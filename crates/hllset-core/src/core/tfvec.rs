@@ -73,11 +73,7 @@ impl TFVec {
     }
 
     /// Increment TF for all bits set in an HLLSet.
-    pub fn increment_from_hllset(
-        &mut self,
-        hllset: &crate::core::hllset::HLLSet,
-        delta: f64,
-    ) {
+    pub fn increment_from_hllset(&mut self, hllset: &crate::core::hllset::HLLSet, delta: f64) {
         for pos in hllset.bitmap().iter() {
             self.increment(pos as usize, delta);
         }
@@ -131,7 +127,7 @@ impl TFVec {
         let mut values = Vec::with_capacity(n);
         for i in 0..n {
             let start = 4 + i * 8;
-            let end = start + 8;
+            let _end = start + 8;
             let val = f64::from_le_bytes([
                 bytes[start],
                 bytes[start + 1],

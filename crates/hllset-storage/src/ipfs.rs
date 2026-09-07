@@ -4,8 +4,8 @@
 //! content-addressing.  No external daemon, no network calls, pure Rust.
 
 use crate::storage::{Result, Storage, StorageError};
-use ipfrs_core::{Block, Cid};
 use bytes::Bytes;
+use ipfrs_core::{Block, Cid};
 use sled::Db;
 use std::path::PathBuf;
 

@@ -1,0 +1,14 @@
+[package]
+name = "hllset-context"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Conversation context over HLLSets: exchange 1/2/3-gram encoding, sparse adjacency matrix, De Bruijn restoration, and LLM prompt materialization"
+
+[dependencies]
+hllset-core = { workspace = true }
+hllset-materialize = { workspace = true }
+
+[dev-dependencies]
+hllset-bridge = { workspace = true }

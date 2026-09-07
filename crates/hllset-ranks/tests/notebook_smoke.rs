@@ -1,16 +1,16 @@
-use hllset_ranks::hllset::*;
+use hllset_dsl::LatticeElement;
 use hllset_ranks::compound::*;
 use hllset_ranks::derivatives::*;
 use hllset_ranks::fisher::*;
+use hllset_ranks::hllset::*;
 use hllset_ranks::mask::*;
-use hllset_dsl::LatticeElement;
 use std::collections::HashMap;
 
 #[test]
 fn test_level4_notebook_cell() {
     let deg_k = DegreeRankFn;
     let alpha = LatticeElement::from_tokens(&["alpha", "beta", "gamma"]);
-    let beta  = LatticeElement::from_tokens(&["beta", "gamma", "delta"]);
+    let beta = LatticeElement::from_tokens(&["beta", "gamma", "delta"]);
     let gamma = LatticeElement::from_tokens(&["gamma", "delta", "epsilon"]);
     let mut idx = HLLSetRankIndex::new();
     for (elem, deg) in [(&alpha, 2usize), (&beta, 2), (&gamma, 2)] {

@@ -56,13 +56,7 @@ pub struct Commit {
 
 impl Commit {
     /// Create a new commit with the current timestamp.
-    pub fn new(
-        source: &str,
-        prev_head: &str,
-        departed: &str,
-        retained: &str,
-        new: &str,
-    ) -> Self {
+    pub fn new(source: &str, prev_head: &str, departed: &str, retained: &str, new: &str) -> Self {
         let ts = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap_or_default()
@@ -113,13 +107,7 @@ mod tests {
 
     #[test]
     fn test_new_creates_commit() {
-        let c = Commit::new(
-            "o:aaaa",
-            "t:bbbb",
-            "d:cccc",
-            "r:dddd",
-            "n:eeee",
-        );
+        let c = Commit::new("o:aaaa", "t:bbbb", "d:cccc", "r:dddd", "n:eeee");
         assert_eq!(c.source, "o:aaaa");
         assert_eq!(c.head, "t:bbbb");
         assert_eq!(c.departed, "d:cccc");
@@ -130,13 +118,7 @@ mod tests {
 
     #[test]
     fn test_json_roundtrip() {
-        let c = Commit::new(
-            "o:aaaa",
-            "t:bbbb",
-            "d:cccc",
-            "r:dddd",
-            "n:eeee",
-        );
+        let c = Commit::new("o:aaaa", "t:bbbb", "d:cccc", "r:dddd", "n:eeee");
         let json = c.to_json();
         let c2 = Commit::from_json(&json).unwrap();
         assert_eq!(c.source, c2.source);
@@ -145,9 +127,7 @@ mod tests {
 
     #[test]
     fn test_content_key() {
-        let c = Commit::new(
-            "o:s1", "t:h1", "d:d1", "r:r1", "n:n1",
-        );
+        let c = Commit::new("o:s1", "t:h1", "d:d1", "r:r1", "n:n1");
         let key = c.content_key();
         assert!(key.starts_with("t:"), "key = {key}");
         assert_eq!(key.len(), 42); // "t:" + 40 hex chars
@@ -155,12 +135,8 @@ mod tests {
 
     #[test]
     fn test_content_key_deterministic() {
-        let c1 = Commit::new(
-            "o:s1", "t:h1", "d:d1", "r:r1", "n:n1",
-        );
-        let c2 = Commit::new(
-            "o:s1", "t:h1", "d:d1", "r:r1", "n:n1",
-        );
+        let c1 = Commit::new("o:s1", "t:h1", "d:d1", "r:r1", "n:n1");
+        let c2 = Commit::new("o:s1", "t:h1", "d:d1", "r:r1", "n:n1");
         // Both keys are valid t: prefix content keys
         assert!(c1.content_key().starts_with("t:"));
         assert!(c2.content_key().starts_with("t:"));
@@ -169,9 +145,7 @@ mod tests {
 
     #[test]
     fn test_chain_validation() {
-        let c = Commit::new(
-            "o:s1", "t:prev_head", "d:d1", "r:r1", "n:n1",
-        );
+        let c = Commit::new("o:s1", "t:prev_head", "d:d1", "r:r1", "n:n1");
         assert!(c.chain_valid("t:prev_head"));
         assert!(!c.chain_valid("t:wrong_head"));
     }

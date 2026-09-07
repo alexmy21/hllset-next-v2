@@ -50,13 +50,13 @@ pub const DEFAULT_LAYERS: usize = 7;
 /// Default durations for the standard second→year pyramid.
 pub fn default_durations() -> Vec<Duration> {
     vec![
-        Duration::from_secs(1),           // L0: 1 second
-        Duration::from_secs(60),          // L1: 1 minute
-        Duration::from_secs(3_600),       // L2: 1 hour
-        Duration::from_secs(86_400),      // L3: 1 day
-        Duration::from_secs(604_800),     // L4: 1 week
-        Duration::from_secs(2_592_000),   // L5: ~30 days
-        Duration::from_secs(31_536_000),  // L6: ~365 days
+        Duration::from_secs(1),          // L0: 1 second
+        Duration::from_secs(60),         // L1: 1 minute
+        Duration::from_secs(3_600),      // L2: 1 hour
+        Duration::from_secs(86_400),     // L3: 1 day
+        Duration::from_secs(604_800),    // L4: 1 week
+        Duration::from_secs(2_592_000),  // L5: ~30 days
+        Duration::from_secs(31_536_000), // L6: ~365 days
     ]
 }
 
@@ -157,10 +157,7 @@ impl TemporalPyramid {
     /// `durations[i]` is the window size for layer `i` (0 = finest).
     /// At least 1 layer is required.
     pub fn new(durations: Vec<Duration>) -> Self {
-        assert!(
-            !durations.is_empty(),
-            "pyramid requires at least one layer"
-        );
+        assert!(!durations.is_empty(), "pyramid requires at least one layer");
         // Validate: windows must be non-decreasing (each coarser layer ≥ finer)
         for i in 1..durations.len() {
             assert!(
@@ -233,11 +230,7 @@ impl TemporalPyramid {
 
     /// Ingest an HLLSet observation using a duration-based delta
     /// (for testing without real clocks).
-    pub fn ingest_with_delta(
-        &mut self,
-        observation: &HLLSet,
-        delta: Duration,
-    ) -> usize {
+    pub fn ingest_with_delta(&mut self, observation: &HLLSet, delta: Duration) -> usize {
         self.total_observations += 1;
 
         // Aggregate into L0

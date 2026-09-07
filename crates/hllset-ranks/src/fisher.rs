@@ -226,7 +226,10 @@ mod tests {
         // The bit position(s) of "a" should appear in 2 layers
         // (There may be multiple positions due to how from_tokens works with multi-seed hashing)
         let diag = f.diagonal(pos_a[0]);
-        assert!(diag >= 1, "Expected a's bit to appear in at least 1 layer, got {diag}");
+        assert!(
+            diag >= 1,
+            "Expected a's bit to appear in at least 1 layer, got {diag}"
+        );
     }
 
     #[test]
