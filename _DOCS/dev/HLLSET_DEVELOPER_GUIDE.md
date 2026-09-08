@@ -15,7 +15,7 @@ There are **two spaces** and **one hinge**:
 
 ```text
 Token space T (bytes)          HLLSet space 2^B (bitmaps)
-     │                                ▲
+     │                                 ▲
      │  ingest (complete, single-touch)│
      ▼                                 │
 LUT lattice 2^T ── materialize M(H,L) ─┘
