@@ -1,8 +1,7 @@
-//! hllset — HLLSet Algebra DSL shell (v0.2 — ipfrs-native, mesh)
+//! hllset — HLLSet Algebra DSL shell (v0.2 — embedded CID + sled)
 //!
 //! Reads Lua scripts from stdin (or -e/--eval) and outputs JSON results.
 //! With --repl or no arguments (TTY), enters interactive mode.
-//! Mesh commands (--mesh-*) replace the ROS 2 Python integration.
 //!
 //! ## Usage
 //!
@@ -10,7 +9,6 @@
 //! echo 'return hllset.inscribe({"hello","world"}):key()' | hllset
 //! hllset -e 'return hllset.tokenize("hello world"):key()'
 //! hllset --repl     # interactive REPL with shared runtime
-//! hllset --mesh-algebra  # start algebra mesh node
 //! ```
 
 use hllset_dsl::DslRuntime;
@@ -26,23 +24,6 @@ fn main() {
 
     if repl_mode {
         run_repl();
-        return;
-    }
-
-    if args.len() >= 2 && args[1] == "--mesh-algebra" {
-        run_mesh_algebra();
-        return;
-    } else if args.len() >= 2 && args[1] == "--mesh-worker" {
-        let worker_id = if args.len() > 2 { &args[2] } else { "worker-0" };
-        run_mesh_worker(worker_id);
-        return;
-    } else if args.len() >= 2 && args[1] == "--mesh-noether" {
-        let threshold: i64 = if args.len() > 2 {
-            args[2].parse().unwrap_or(5)
-        } else {
-            5
-        };
-        run_mesh_noether(threshold);
         return;
     }
 
@@ -115,7 +96,7 @@ fn run_repl() {
     let mut stdout = io::stdout();
     let mut line = String::new();
 
-    eprintln!("hllang REPL — HLLSet Algebra DSL (v0.2 ipfrs-native)");
+    eprintln!("hllang REPL — HLLSet Algebra DSL (v0.2 embedded CID + sled)");
     eprintln!("Type 'exit' or Ctrl-D to quit. Lua variables persist across lines.");
     eprintln!("Lines with 'return' print JSON; others execute silently.");
     eprintln!();
@@ -162,7 +143,7 @@ fn run_repl() {
 }
 
 fn print_help() {
-    eprintln!("hllset — HLLSet Algebra DSL shell (v0.2 — ipfrs-native)\n");
+    eprintln!("hllset — HLLSet Algebra DSL shell (v0.2 — embedded CID + sled)\n");
     eprintln!("Usage:");
     eprintln!("  hllset -e '<lua script>'      Evaluate inline Lua script");
     eprintln!("  hllset --forth '<forth>'      Compile+run Forth DSL");
@@ -171,13 +152,7 @@ fn print_help() {
     eprintln!("  hllset --repl                 Interactive REPL (shared runtime)");
     eprintln!("  hllset                        Enter REPL (if TTY, no pipe)");
     eprintln!();
-    eprintln!("Mesh commands (replaces ROS 2 pub/sub):");
-    eprintln!("  hllset --mesh-algebra         Start algebra node (ingest -> HLLSet)");
-    eprintln!("  hllset --mesh-worker [id]     Start stateless worker node");
-    eprintln!("  hllset --mesh-noether [thr]   Start Noether flux controller");
-    eprintln!();
-    eprintln!("Storage: ipfrs-core (CID via sled) — no Go IPFS daemon required.");
-    eprintln!("Messaging: in-process tokio bus — no ROS 2 / rclpy required.");
+    eprintln!("Storage: embedded hllset-cid + sled — no external daemon required.");
     eprintln!();
     eprintln!("In REPL mode, Lua variables persist across lines.");
     eprintln!("hllset.store() / hllset.load() share the same runtime.");
@@ -186,66 +161,6 @@ fn print_help() {
     eprintln!("  hllset -e 'return hllset.inscribe({{\"hello\",\"world\"}}):key()'");
     eprintln!("  hllset -e 'return #hllset.tokenize(\"hello world\")'");
     eprintln!("  hllset --repl");
-    eprintln!("  hllset --mesh-algebra  # start algebra node");
-}
-
-// ── Mesh stubs ──────────────────────────────────────────────────────
-
-fn run_mesh_algebra() {
-    let rt = tokio::runtime::Runtime::new().unwrap();
-    rt.block_on(async {
-        use hllset_mesh::{AlgebraNode, InProcessBus};
-        use std::sync::Arc;
-
-        let bus = Arc::new(InProcessBus::new(64));
-        let _algebra = AlgebraNode::new(bus);
-        eprintln!("[mesh] Algebra node started on in-process bus");
-        eprintln!("[mesh] Call algebra.ingest_text(\"hello world\") to test");
-        eprintln!("[mesh] Press Ctrl-C to stop");
-
-        let _ = tokio::signal::ctrl_c().await;
-        eprintln!("\n[mesh] Shutting down...");
-    });
-}
-
-fn run_mesh_worker(worker_id: &str) {
-    let rt = tokio::runtime::Runtime::new().unwrap();
-    rt.block_on(async {
-        use hllset_mesh::{InProcessBus, WorkerNode};
-        use std::sync::Arc;
-
-        let bus = Arc::new(InProcessBus::new(64));
-        let worker = WorkerNode::new(worker_id, bus);
-        eprintln!(
-            "[mesh] Worker '{}' started on in-process bus",
-            worker.worker_id()
-        );
-        eprintln!("[mesh] Press Ctrl-C to stop");
-
-        let _ = tokio::signal::ctrl_c().await;
-        eprintln!("\n[mesh] Shutting down...");
-    });
-}
-
-fn run_mesh_noether(threshold: i64) {
-    let rt = tokio::runtime::Runtime::new().unwrap();
-    rt.block_on(async {
-        use hllset_mesh::{InProcessBus, NoetherController};
-        use std::sync::Arc;
-
-        let bus = Arc::new(InProcessBus::new(64));
-        let controller = NoetherController::new(bus, threshold);
-        controller.start().await;
-        eprintln!(
-            "[mesh] Noether controller started (threshold={})",
-            threshold
-        );
-        eprintln!("[mesh] Press Ctrl-C to stop");
-
-        let _ = tokio::signal::ctrl_c().await;
-        controller.stop().await;
-        eprintln!("\n[mesh] Shutting down...");
-    });
 }
 
 fn lua_to_json(v: LuaValue) -> serde_json::Value {

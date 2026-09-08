@@ -10,18 +10,16 @@ license = "MIT"
 
 [workspace.dependencies]
 # ── hllset crates ──
+hllset-cid = { path = "crates/hllset-cid" }
+hllset-morphisms = { path = "crates/hllset-morphisms" }
+hllset-lut = { path = "crates/hllset-lut" }
 hllset-contracts = { path = "crates/hllset-contracts" }
 hllset-core = { path = "crates/hllset-core" }
 hllset-storage = { path = "crates/hllset-storage" }
 hllset-dsl = { path = "crates/hllset-dsl" }
 hllset-forth = { path = "crates/hllset-forth" }
-hllset-materialize = { path = "crates/hllset-materialize" }
-hllset-duckdb = { path = "crates/hllset-duckdb" }
 hllset-cli = { path = "crates/hllset-cli" }
-hllset-mesh = { path = "crates/hllset-mesh" }
 hllset-ranks = { path = "crates/hllset-ranks" }
-hllset-storage-redis = { path = "crates/hllset-storage-redis" }
-hllset-temporal = { path = "crates/hllset-temporal" }
 hllset-bridge = { path = "crates/hllset-bridge" }
 hllset-context = { path = "crates/hllset-context" }
 
@@ -45,20 +43,12 @@ log = "0.4"
 # ── Database ──
 rusqlite = { version = "0.32", features = ["bundled"] }
 
-# ── Storage (ipfrs-native, replaces ureq→Go IPFS HTTP) ──
+# ── Storage (embedded CID + sled, no external daemon) ──
 sled = "0.34"
 bytes = "1.11"
 
-# ── Content-addressing (ipfrs-core types) ──
-# Pinned to local checkout for POC; will use crates.io once ipfrs 0.3.0 stabilises
-ipfrs-core = { path = "/home/alexmy/SGS/SGS_lib/fractal_manifold/ipfrs/crates/ipfrs-core" }
 
-# ── Redis client (sync mode, for hllset-storage-redis) ──
-redis = { version = "0.28", features = ["tokio-comp"] }
 
-# ── Async runtime (for mesh + async storage backends) ──
-tokio = { version = "1.52", features = ["full"] }
-async-trait = "0.1"
 
 # ── Observability ──
 tracing = "0.1"

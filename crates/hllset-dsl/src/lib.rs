@@ -49,7 +49,6 @@
 
 pub mod distributed;
 pub mod lattice;
-pub mod materialize;
 pub mod pattern;
 pub mod runtime;
 pub mod tokenizer;
@@ -57,17 +56,6 @@ pub mod worker;
 
 pub use distributed::{BSSRouter, MultiSourceMerge, NodeFingerprint};
 pub use lattice::LatticeElement;
-pub use materialize::{
-    materialize_debruijn, materialize_homogeneous_consensus, materialize_inlut,
-    materialize_ngram_cross_validate, CatalogLUT, DenseLUT, MaterializedResult, Materializer,
-    TokenLUT,
-};
-
-// Re-export the pluggable materialization engine trait
-pub use hllset_materialize::{
-    DuckDBEngine, FPGASimEngine, InMemoryEngine, MaterializeEngine, MaterializeError,
-    MaterializeRegistry,
-};
 pub use runtime::DslRuntime;
 pub use tokenizer::{Normalizer, Tokenizer};
 pub use worker::Worker;

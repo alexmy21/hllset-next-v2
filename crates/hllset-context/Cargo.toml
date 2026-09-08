@@ -4,11 +4,11 @@ version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "Conversation context over HLLSets: exchange 1/2/3-gram encoding, sparse adjacency matrix, De Bruijn restoration, and LLM prompt materialization"
+description = "The Noether context algebra: S(t) as a lattice element with declared generators, D/R/N evolution, and the tropical follow matrix"
 
 [dependencies]
+hllset-contracts = { workspace = true }
 hllset-core = { workspace = true }
-hllset-materialize = { workspace = true }
 
 [dev-dependencies]
-hllset-bridge = { workspace = true }
+hllset-morphisms = { workspace = true }

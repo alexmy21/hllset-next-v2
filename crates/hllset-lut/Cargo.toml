@@ -1,0 +1,11 @@
+[package]
+name = "hllset-lut"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "The LUT lattice: named nodes of 2^T, fibers K_i, materialization as a join-homomorphism, and the atom-tree presentation (finest symmetry)"
+
+[dependencies]
+hllset-contracts = { workspace = true }
+hllset-core = { workspace = true }

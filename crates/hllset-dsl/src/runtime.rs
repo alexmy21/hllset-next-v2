@@ -5,7 +5,6 @@
 //! `+`, `*`, `-` operators and `#` for cardinality.
 
 use crate::lattice::LatticeElement;
-use crate::materialize::{CatalogLUT, TokenLUT};
 use crate::tokenizer::Tokenizer;
 use hllset_storage::{MemoryStorage, Storage};
 use mlua::prelude::*;
@@ -83,52 +82,6 @@ impl DslRuntime {
             Ok(tok)
         })?;
         hllset_table.set("tokenizer", tokenizer_factory)?;
-
-        // hllset.materialize(element, tokens) -> { confidence, tokens }
-        use crate::materialize;
-        let materialize_fn =
-            lua.create_function(|lua, (elem, tokens): (LatticeElement, Table)| {
-                let mut token_vec: Vec<Vec<u8>> = Vec::new();
-                for pair in tokens.pairs::<Value, Value>() {
-                    let (_, v) = pair?;
-                    if let Value::String(s) = v {
-                        token_vec.push(s.as_bytes().to_vec());
-                    }
-                }
-                let lut = TokenLUT::from_tokens(&token_vec);
-                let result = materialize::materialize_inlut(elem.hllset(), &lut);
-                let tbl = lua.create_table()?;
-                tbl.set("confidence", result.confidence)?;
-                let tokens_tbl = lua.create_table()?;
-                for (i, t) in result.flat_strings().iter().enumerate() {
-                    tokens_tbl.set(i + 1, t.as_str())?;
-                }
-                tbl.set("tokens", tokens_tbl)?;
-                Ok(tbl)
-            })?;
-        hllset_table.set("materialize", materialize_fn)?;
-
-        // hllset.materialize_catalog(elem, values) -> { confidence, tokens }
-        let mat_cat_fn = lua.create_function(|lua, (elem, values): (LatticeElement, Table)| {
-            let mut vals: Vec<Vec<u8>> = Vec::new();
-            for pair in values.pairs::<Value, Value>() {
-                let (_, v) = pair?;
-                if let Value::String(s) = v {
-                    vals.push(s.as_bytes().to_vec());
-                }
-            }
-            let lut = CatalogLUT::from_values(vals.iter());
-            let result = materialize::materialize_homogeneous_consensus(elem.hllset(), &lut);
-            let tbl = lua.create_table()?;
-            tbl.set("confidence", result.confidence)?;
-            let tokens_tbl = lua.create_table()?;
-            for (i, t) in result.flat_strings().iter().enumerate() {
-                tokens_tbl.set(i + 1, t.as_str())?;
-            }
-            tbl.set("tokens", tokens_tbl)?;
-            Ok(tbl)
-        })?;
-        hllset_table.set("materialize_catalog", mat_cat_fn)?;
 
         // Storage bindings — use storage Rc cloned into closures
         let storage_lua = Rc::clone(&storage);
@@ -790,52 +743,5 @@ mod tests {
         assert!(n >= 2, "expected >= 2 tokens, got {n}");
         assert_eq!(t1, "hello");
         assert_eq!(t2, "world");
-    }
-
-    // ── Materialization Lua tests ────────────────────────────────────
-
-    #[test]
-    fn test_materialize_lua() {
-        let rt = DslRuntime::new().unwrap();
-        let script = r#"
-            local e = hllset.tokenize("hello world lua")
-            local result = hllset.materialize(e, {"hello", "world", "lua"})
-            return result.confidence, #result.tokens
-        "#;
-        let (conf, n): (f64, usize) = rt.eval(script).unwrap();
-        assert!(conf > 0.0, "confidence={conf}");
-        assert!(n >= 3, "expected >= 3 tokens, got {n}");
-    }
-
-    #[test]
-    fn test_materialize_roundtrip_lua() {
-        let rt = DslRuntime::new().unwrap();
-        let script = r#"
-            local e = hllset.tokenize("alpha beta gamma")
-            local result = hllset.materialize(e, {"alpha", "beta", "gamma"})
-            local found = {alpha=false, beta=false, gamma=false}
-            for i = 1, #result.tokens do
-                local t = result.tokens[i]
-                if t == "alpha" then found.alpha = true
-                elseif t == "beta" then found.beta = true
-                elseif t == "gamma" then found.gamma = true end
-            end
-            return found.alpha and found.beta and found.gamma
-        "#;
-        let all_found: bool = rt.eval(script).unwrap();
-        assert!(all_found);
-    }
-
-    #[test]
-    fn test_materialize_empty_output() {
-        let rt = DslRuntime::new().unwrap();
-        let script = r#"
-            local e = hllset.empty()
-            local result = hllset.materialize(e, {"test"})
-            return result.confidence, #result.tokens
-        "#;
-        let (conf, n): (f64, usize) = rt.eval(script).unwrap();
-        assert!(conf >= 0.0);
-        assert_eq!(n, 0);
     }
 }

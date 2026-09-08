@@ -29,11 +29,11 @@ pub const PROTOCOL_VERSION: u32 = 1;
 
 /// Contract (vocabulary) version. Bump on any soldered-invariant change:
 /// additive changes bump the patch component, breaking changes the minor.
-pub const CONTRACT_VERSION: u32 = 1;
+pub const CONTRACT_VERSION: u32 = 2;
 
 pub use hashing::{
     hash_to_position, murmur3_hash, murmur3_hash_seeded, sha1_hex, token_to_position,
-    token_to_position_seeded, BITS_PER_REG, M, P, TOTAL_BITS,
+    token_to_position_seeded, BitAddress, BITS_PER_REG, M, P, TOTAL_BITS,
 };
 pub use module::{
     input_port_in_range, module_ports, output_port_in_range, ModuleKind, ModulePorts, NodeId,

@@ -8,9 +8,8 @@ description = "Storage abstraction for HLLSet — content-addressed backends (me
 
 [dependencies]
 hllset-core = { workspace = true }
-ipfrs-core = { workspace = true }
+hllset-cid = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
 sled = { workspace = true }
-bytes = { workspace = true }

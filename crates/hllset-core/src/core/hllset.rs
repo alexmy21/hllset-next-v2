@@ -129,6 +129,18 @@ impl HLLSet {
         self.bitmap.insert(pos);
     }
 
+    /// Set the atom at flat bit position `bit` (`reg * 32 + tz`).
+    ///
+    /// The structural atom operation of the HLLSet lattice; used by complete
+    /// ingestion when populating from pre-computed (multi-seed) positions.
+    pub fn add_bit(&mut self, bit: u32) {
+        assert!(
+            bit < TOTAL_BITS,
+            "bit {bit} out of range (TOTAL_BITS={TOTAL_BITS})"
+        );
+        self.bitmap.insert(bit);
+    }
+
     // --- Bitmap access -------------------------------------------------------
 
     /// Reference to the internal RoaringBitmap.
@@ -168,6 +180,15 @@ impl HLLSet {
         self.bitmap
             .iter()
             .map(|pos| (pos / BITS_PER_REG, pos % BITS_PER_REG))
+            .collect()
+    }
+
+    /// All active bit addresses, in bitmap order — the structural hinge of
+    /// the `{tokens} ↔ {HLLSets}` morphisms (`hllset-contracts::BitAddress`).
+    pub fn bit_addresses(&self) -> Vec<hllset_contracts::BitAddress> {
+        self.bitmap
+            .iter()
+            .map(hllset_contracts::BitAddress::new)
             .collect()
     }
 

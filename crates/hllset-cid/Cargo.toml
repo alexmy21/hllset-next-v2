@@ -1,0 +1,10 @@
+[package]
+name = "hllset-cid"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Embedded content-addressed identifiers (CID) — the gen2 default substitute for the external ipfrs-core dependency"
+
+[dependencies]
+hllset-contracts = { workspace = true }

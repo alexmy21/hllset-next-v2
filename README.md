@@ -1,62 +1,43 @@
-# HLLSet DSL — Next Iteration (hllset-next)
+# hllset-next-v2 — the HLLSet algebra line (gen2)
 
-**Unified Rust platform for HLLSet Algebra.** Implements the full
-[STANDARD.md](_DOCS/dev/STANDARD.md) specification: IICA-gated operations,
-five-level rank algebra, temporal pyramid, universal bridge, and
-content-addressed namespace taxonomy.
-
-**Developer tip.** HLLSet Algebra is pattern matching in a bitmask lattice.
-The notation is precise, but the concepts are familiar:
-`tokenize` = compile text into a bitmask; `union` = OR; `intersection` = AND;
-`bss_inclusion` = confidence that pattern B matches within pattern A;
-`materialize` = which known tokens match these bits?;
-`Noether steering` = pattern drift detector;
-`Fisher matrix` = temporal co-occurrence of sub-patterns;
-`O(θ)` = which patterns exceed a relevance threshold;
-`TemporalPyramid` = L0–L6 sliding window with automatic carry cascade;
-`UniversalBridge` = cross-domain re-representation with Spearman ranking.
-Same code, same FPGA, just different names for the same operations.
-
-## Why This Exists
-
-The original [`hllset_dsl`](../hllset_dsl/) project is a production-targeted
-Forth DSL for content-addressed probabilistic set operations. It works, but
-its infrastructure dependencies are non-Rust:
-
-| Dependency | Language | Role |
-| -------------- | ------------ | -------------------------- |
-| IPFS daemon | Go | Content-addressed storage |
-| ROS 2 | Python/C++ | Pub/sub messaging |
-
-This project proves that both can be replaced with Rust-native equivalents
-without changing the core algebra, Forth DSL, or Lua runtime. The result is
-a **single-language platform** — build, test, and deploy with `cargo` alone.
-
-The original project is untouched. This is experimental ground.
+The foundation of the `fractal_manifold_gen2` collection. This project is the
+reference implementation of the HLLSet algebra recorded in
+[`ewm-cortex-fpga-v2/docs/ALGEBRAIC_FOUNDATION.md`](../../ewm-cortex-fpga-v2/docs/ALGEBRAIC_FOUNDATION.md)
+and consolidated, with the working rules and implementation details, in
+[`_DOCS/dev/HLLSET_DEVELOPER_GUIDE.md`](_DOCS/dev/HLLSET_DEVELOPER_GUIDE.md):
+two spaces, one hinge (`BitAddress`), one LUT
+lattice, two morphisms with contracts, the Noether context, and derived ranks —
+all Rust, `cargo` only, no Go/Python/ROS 2/Redis.
 
 ## Architecture
 
 ```text
-hllset-next/
-├── Cargo.toml                 # Workspace manifest (13 crates)
+hllset-next-v2/
+├── Cargo.toml                 # Workspace manifest (12 crates)
 ├── crates/
-│   ├── hllset-core/           # HLLSet bitmap, hashing, BSS, TFVec, Commit, CID taxonomy
-│   ├── hllset-dsl/            # Lua VM, tokenizer, materializer, De Bruijn
-│   ├── hllset-forth/          # Forth parser → AST → Lua compiler, colon-definitions
-│   ├── hllset-ranks/          # Five-level rank algebra, derivatives, Fisher, mask, TfRegisterRanker
-│   ├── hllset-materialize/    # Pluggable materialization trait
-│   ├── hllset-storage/        # HLPP Storage trait + MemoryStorage + IpfrsNative (sled)
-│   ├── hllset-storage-redis/  # RedisStorage backend (enterprise)
-│   ├── hllset-temporal/       # NEW: L0–L6 configurable temporal pyramid
-│   ├── hllset-bridge/         # NEW: Universal cross-domain re-representation
-│   ├── hllset-mesh/           # In-process pub/sub bus + Noether controller
-│   ├── hllset-duckdb/         # Chunked LUT engine
-│   └── hllset-cli/            # CLI: Lua -e, Forth --forth, REPL, mesh commands
+│   ├── hllset-contracts/      # Soldered invariants: hashing, BitAddress, token encodings
+│   ├── hllset-core/           # HLLSet bitmap, IICA lattice ops, serialization, cardinality
+│   ├── hllset-lut/            # The LUT lattice: LutNode (nodes of 2^T), fibers K_i, AtomTree
+│   ├── hllset-morphisms/      # The two morphisms: complete single-touch ingest,
+│   │                          #   LUT-first materialization (TF only for ambiguity)
+│   ├── hllset-context/        # The Noether context: S(t) generators, D/R/N, tropical FollowMatrix
+│   ├── hllset-ranks/          # Five-level rank algebra: TF stored, rank derived (F→G→H→K→L)
+│   ├── hllset-cid/            # Embedded content-addressed identifiers (SHA-1 CIDs)
+│   ├── hllset-dsl/            # Lua VM bindings, tokenizer, LatticeElement, storage API
+│   ├── hllset-forth/          # Forth frontend: source → AST → Lua
+│   ├── hllset-bridge/         # 3-gram fingerprinting bridge (n-gram ingest helpers)
+│   ├── hllset-storage/        # Storage trait + MemoryStorage + SledStorage (embedded CID)
+│   └── hllset-cli/            # CLI: Lua -e, Forth --forth, REPL
 ├── _DOCS/
-│   ├── dev/STANDARD.md        # Authoritative architecture specification
-│   └── notebooks/             # 14 Jupyter notebooks (Rust kernel)
-└── redis/                     # Redis container with Roaring Bitmap modules
+│   ├── dev/                   # Design and governance documents
+│   └── notebooks/             # 6 gen2 notebooks (Rust kernel, executed green)
+└── README.md
 ```
+
+Dropped from the legacy line (kept in the frozen `fractal_manifold/` tree):
+`hllset-mesh` (no coordination needed), `hllset-materialize` (the morphism lives
+in `hllset-morphisms`), `hllset-storage-redis`, `hllset-duckdb`,
+`hllset-temporal`.
 
 ## Quick Start
 
@@ -65,184 +46,80 @@ hllset-next/
 cargo build
 
 # Lua evaluation
-cargo run -- -e 'return hllset.tokenize("hello world"):key()'
+cargo run -- -e 'return #hllset.tokenize("hello world")'
 
-# Forth DSL (with colon-definitions)
+# Forth DSL
 cargo run -- --forth '"neural" "network" 2 INSCRIBE KEY'
-cargo run -- --forth ': DOUBLE 2 * ; 5 DOUBLE'
 
 # Interactive REPL
 cargo run -- --repl
-
-# Mesh: start algebra node
-cargo run -- --mesh-algebra
-
-# Mesh: start Noether flux controller (integer threshold)
-cargo run -- --mesh-noether 5
 ```
 
 ## Test Suite
 
 ```bash
-cargo test
-# 291 tests, 0 failures (13 crates)
+cargo test --workspace
+# 245 tests, 0 failures (12 crates)
 ```
 
 ## Notebooks
 
-All 14 notebooks execute in the Rust (evcxr) Jupyter kernel.
+Six notebooks, aligned with the gen2 architecture, all executed green in the
+Rust (evcxr) Jupyter kernel. The legacy 14-notebook set is discharged with the
+frozen line.
 
 | # | Notebook | Description |
 | --- | ---------- | ------------- |
-| 01 | `hllset_core` | HLLSet basics, BSS morphisms, lattice operations |
-| 02 | `tokenizer_materialization` | Tokenizer pipeline, LUT construction, materialization |
-| 03 | `client_demo` | External client: ingestion, comparison, storage |
-| 04 | `algebraic_chunk_space` | IICA: chunked LUT, closure, BSS vector, Merkle tree |
-| 05 | `iica_forth` | Forth DSL: immutable, idempotent, content-addressed |
-| 06 | `fpga_self_reprogram` | FPGA self-reprogramming, DRN evolution, temporal layers |
-| 07 | `secure_exchange` | Secure HLLSet exchange protocol |
-| 08 | `holographic_memory` | Holographic lattice memory, TF time lens |
-| 09 | `rank_algebra` | Five-level rank algebra |
-| 10 | `multi_lattice_dimensions` | Multi-perceptron world model, swarm, time travel |
-| 11 | `caal_llm_demo` | CAAL-LLM: Content-addressed Chinese LLM + I Ching |
-| 11b | `redis_bridge` | Redis storage backend validation |
-| **12** | **`dsl_user_guide`** | **DSL User Guide: tokenization, algebra, storage, temporal, Forth, IICA** |
-| **13** | **`advanced_algebra`** | **Advanced: TFVec, Commit, ranks, temporal pyramid, bridge, CID taxonomy** |
+| 01 | `hllset_algebra` | The hinge, LUT lattice, ingest/materialize, Noether context, ranks, finest symmetry |
+| 02 | `tokenizer_materialization` | DSL Tokenizer + the one materialization morphism (LUT-first, TF for ambiguity) |
+| 03 | `hllset_core` | IICA laws, content keys (o:/h:), sub-lattice collapse, serialization, atoms, cardinality |
+| 04 | `lua_dsl_and_forth` | Lua DSL (inscribe, operators, store/load) + Forth parse→lower→run |
+| 05 | `noether_context_tree` | S(t) generators, D/R/N invariants, tropical follow matrix, atom tree = same element |
+| 06 | `embedded_storage_cid` | Embedded CID + SledStorage: the default IPFS substitute |
 
-## CAAL-LLM: Content-Addressed LLM Proof
+## Key Features (gen2)
 
-**Notebook 11** demonstrates a content-addressed Chinese LLM. The result:
+- **Contracts first.** `hllset-contracts` holds the soldered invariants —
+  `PROTOCOL_VERSION`, `CONTRACT_VERSION`, Murmur3/sha1, `BitAddress` (the
+  structural hinge), and both token encodings (`tid{n}`, 4-byte LE).
+- **IICA core.** `hllset-core`: bitmap over `B` = 1024×32, union/intersection/
+  difference, popcount vs Horvitz–Thompson cardinality, serialization,
+  content keys (`h:`, `o:`, …).
+- **The LUT lattice.** `hllset-lut`: every named LUT is a labeled node of
+  `2^T`; `K_i` (the fiber of bit address `i`) is first-class; `AtomTree` is
+  the sparse Merkle tree over `B` and `HLLSet(LUT) = HLLSet(MerkleTree)`.
+- **The two morphisms.** `hllset-morphisms`: ingest is complete and
+  single-touch (3 seeded hashes → atoms + LUT fibers + TF, in-module);
+  materialize is LUT-first with TF consulted only for collided bits.
+- **The Noether context.** `hllset-context`: `S(t)` as a lattice element with
+  declared generators, `H(t) = (S(t), H(t-1), D, R, N)` with invariants, and
+  the tropical follow matrix (max/+, grow-only, projection to `V(H)`).
+- **Derived ranks.** `hllset-ranks`: five levels `F(TF) → G(bit) →
+  H(register) → K(HLLSet) → L(compound)`, all `u64`; TF stored, rank never
+  stored.
+- **DSL & tooling.** Lua runtime, Forth frontend, REPL — pure algebra,
+  no materialization baked in.
+- **Embedded storage.** `hllset-storage`: `MemoryStorage` for dev/testing and
+  `SledStorage` as the embedded default — sled + `hllset-cid` (SHA-1 CIDs).
+  No external daemon, no `ipfrs-core` path, nothing outside the collection.
 
-```text
-Training:  10 Chinese sentences (~100 characters, driving rules)
-Questions: 5 driving scenario questions
-Correct:   4/5 (80%)
-```
+## Collection roadmap
 
-No gradient descent. No weight matrices. No GPU. No transformer.
-Just murmurhash3 + bitwise AND + popcount. MS-DOS capable.
+1. **hllset-next-v2** (this project) — the algebra foundation. ✅ Refactor
+   complete.
+2. **hllset-fpga-simulator-v2** — consume the updated foundation.
+3. **ewm-fpga-bridge-v2** — consume the updated foundation.
+4. **ewm-cortex-fpga-v2** — structural/persistence layer on top.
 
-This validates two principles:
+## Key Changes from the Legacy Line
 
-1. **Chinese as assembly language** — characters ARE tokens, fixed set, deterministic
-2. **Context (HLLSet) based LLM** — learning = accumulating HLLSets; inference = BSS retrieval
-
-A GPT needs billions of tokens. This needs 10 sentences and a hash function.
-
-The same notebook runs the I Ching pipeline: scene → BSS consultation → hexagram
-→ R-link navigation → strategic guidance. See `_DOCS/dev/CAAL_ICHING_ARCHITECTURE.md`
-and `../caal-llm/` for the standalone Rust crate.
-
-## Storage Backends — The Trait-Boundary Design
-
-Every storage backend implements the `Storage` trait (11 methods: `put`, `get`,
-`has`, `delete`, `list`, `pin`, `unpin`, `gc` for content-addressed operations;
-`put_tmp`, `get_tmp`, `cas_tmp` for temporal state). Legacy aliases
-(`store`/`load`/`exists`) delegate to the canonical HLPP names.
-
-Switching backends is a one-line change — everything above the trait
-(Lua runtime, materializer, DuckDB LUT, ingest pipeline, mesh nodes,
-rank algebra, temporal pyramid) works identically.
-
-| Backend | Crate | Use case | Tests |
-| --------- | ------- | ---------- | --- |
-| `MemoryStorage` | `hllset-storage` | Development, testing (full temporal support) | 19 |
-| `IpfrsNativeStorage` | `hllset-storage` | Local (sled, no daemon) | 13 |
-| `RedisStorage` | `hllset-storage-redis` | Enterprise (Redis + Roaring Bitmap) | 5 |
-
-**Redis quick start:**
-
-```bash
-# Build and start the Redis container
-podman build -t hllset-redis -f redis/Dockerfile .
-podman run -d --name hllset-redis -p 6379:6379 hllset-redis
-
-# Use it in Rust
-let store = RedisStorage::connect("redis://127.0.0.1:6379").unwrap();
-store.put("h:abc123", &hllset_bytes).unwrap();
-```
-
-## Key Features (July 2026)
-
-### Core Algebra
-
-- **HLLSet bitmap** (1024×32): union, intersection, difference, XOR — all O(1) bitwise
-- **BSS morphisms**: inclusion (τ), exclusion (ρ), morphism check — float-based similarity
-- **R-links**: topological intersection HLLSets — composable, content-addressed, FPGA-native
-- **Cardinality**: Horvitz-Thompson estimator, monotonic guaranteed
-- **Content addressing**: SHA-1 keys with full namespace taxonomy (o/h/r/d/n/t/v/l/c/u + system:)
-
-### Storage Protocol (HLPP)
-
-- **CA operations**: `put`/`get`/`has`/`list`/`pin`/`unpin`/`gc` — idempotent, IICA-compliant
-- **Temporal operations**: `put_tmp`/`get_tmp`/`cas_tmp` — atomic compare-and-swap
-- **3 backends**: Memory (19 tests), Sled/IPFS-native (13 tests), Redis (5 tests)
-- **Legacy compatibility**: `store`/`load`/`exists` aliases delegate to canonical names
-
-### Rank Algebra (hllset-ranks)
-
-- **Five-level**: token → bit → register → HLLSet → compound — integer-only, FPGA-native
-- **Derivatives**: ΔR (first-order), Δ²R (acceleration), rank flux, Noether steering
-- **Fisher matrix**: sparse cross-layer bit co-occurrence, systemic vs noise detection
-- **Observable mask**: rank-threshold attention filter — controls visibility, not existence
-- **TfRegisterRanker**: TF vector → 1,024 register-level ranks — no TokenLUT needed
-
-### Temporal Pyramid (hllset-temporal)
-
-- **Configurable N-layer**: 7-layer default (second→year), tunable to any scale
-- **Automatic carry cascade**: time-boundary detection, layer merge, reset
-- **System state**: H_system = ∪L_i — bit-lossless union of all layers
-- **TF snapshots**: per-layer and system-wide TF vectors for time-lens queries
-- **Noether invariant**: structural guarantee of convergence without coordination
-- **Presets**: standard, high-frequency, realtime-control, document-analysis, minimal
-
-### Universal Bridge (hllset-bridge)
-
-- **Two-pass ingestion**: representation (domain→HLLSet) + re-representation (bit→bridge)
-- **3-gram fingerprinting**: structural invariant for cross-domain matching
-- **Spearman rank correlation**: ranks vectors, computes ρ ∈ [-1,1]
-- **Bridge pipeline**: re-represent → fingerprint → rank-correlate → top-K matches
-- **Statistics constraint**: transfers structure, not TF — each domain learns independently
-
-### DSL & Tooling
-
-- **Lua runtime**: `hllset -e '<script>'` with full algebra + storage + temporal bindings
-- **Forth DSL**: `hllset --forth '<code>'` with colon-definitions → Lua compilation
-- **REPL**: interactive mode with shared runtime, persistent Lua variables
-- **Mesh**: in-process tokio broadcast bus, Noether flux controller (integer)
-- **14 notebooks**: from core algebra to advanced bridge, all Rust-kernel executable
-
-## Key Changes from Original
-
-| Aspect | Original (hllset_dsl) | hllset-next (current) |
+| Aspect | Legacy | gen2 |
 | -------- | ---------------------- | ------------------- |
-| Storage | HTTP to Go IPFS daemon | `ipfrs-core` + `sled` (local) + `Redis` (enterprise) |
-| Messaging | ROS 2 Python nodes | `hllset-mesh` in-process tokio bus |
-| External deps | Go, Python, ROS 2 | None beyond Rust |
-| Language mix | Rust + Python + Go | Rust only |
-| Rank system | None | Five-level integer algebra + Fisher + mask |
-| Temporal | None | Configurable N-layer pyramid + carry cascade |
-| Cross-domain | None | Universal bridge + Spearman ranking |
-| CID taxonomy | h:/c: only | Full o/r/d/n/t/v/l/c/u + system: |
-| Storage trait | 6 methods (CA only) | 11 methods (CA + temporal + CAS) |
-| Forth | Parser + basic Lua | Colon-definitions → Lua functions |
-| Test count | 212 | 291 |
-
-## What's Next
-
-The `MeshBus` trait in `hllset-mesh` is designed for a distributed transport
-swap-in. The obvious candidate is `mielin-mesh` (Kademlia DHT + QUIC from the
-MielinOS project), which would enable multi-node mesh networking without ROS 2.
-
-Similarly, `IpfrsNativeStorage` is local-only (single sled database). A
-mielin-mesh-replicated storage backend would provide distributed content-addressing
-across nodes — reaching feature parity with the original's IPFS-based HLPP
-protocol, but entirely in Rust.
-
-**Remaining from STANDARD.md:**
-
-- Self-ingestion pipeline (git commit → HLLSet ingest, llms.txt, folder views)
-- caal-llm reference application hardening
-
-See [`_DOCS/dev/STANDARD.md`](_DOCS/dev/STANDARD.md) for the complete
-architecture specification and implementation status matrix.
+| Materialization | 4 strategies + engine trait + registry | one morphism: LUT-first, TF for ambiguity |
+| LUT | ad-hoc tables (TokenLUT/CatalogLUT/…) | labeled nodes of `2^T`, fibers `K_i` |
+| Ranks | traits + Fisher + masks + derivatives | five pure projections over TF + fibers |
+| Context | conversation crate (prompts, De Bruijn) | Noether context + tropical follow matrix |
+| Messaging | mesh bus (tokio) | none — no coordination needed |
+| Storage | Memory / Redis / DuckDB / ipfrs-core path | Memory + `SledStorage` with embedded `hllset-cid` |
+| Notebooks | 14 legacy | 5 gen2, executed green |
+| Tests | 291 (13 crates) | 245 (12 crates) |

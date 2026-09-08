@@ -1,13 +1,12 @@
 [package]
-name = "hllset-ranks"
+name = "hllset-morphisms"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "The five-level rank algebra: TF stored, rank derived — F(TF) → G(bit) → H(register) → K(HLLSet) → L(compound), all u64"
+description = "The two morphisms with their operational contracts: complete single-touch ingestion, and LUT-first materialization with TF only for ambiguity"
 
 [dependencies]
 hllset-contracts = { workspace = true }
 hllset-core = { workspace = true }
 hllset-lut = { workspace = true }
-hllset-morphisms = { workspace = true }
